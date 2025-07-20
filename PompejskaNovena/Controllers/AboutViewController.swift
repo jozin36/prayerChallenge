@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  AboutViewController.swift
 //  PompejskaNovena
 //
 //  Created by Jozef Pazúrik on 17/07/2025.
@@ -7,13 +7,11 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class AboutViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+
+        //view.backgroundColor = .systemPurple
     }
-
-
 }
-
