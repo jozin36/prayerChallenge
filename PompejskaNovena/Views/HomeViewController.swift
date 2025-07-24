@@ -36,8 +36,8 @@ class HomeViewController: UIViewController {
 
         NSLayoutConstraint.activate([
             label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            label.topAnchor.constraint(equalTo: view.topAnchor, constant: 100),
-            startButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 180),
+            label.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            startButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
             startButton.heightAnchor.constraint(equalToConstant: 40),
             startButton.widthAnchor.constraint(equalToConstant: 300),
             startButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)

@@ -17,11 +17,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
          
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(frame: windowScene.coordinateSpace.bounds)
-        window?.windowScene = windowScene
-        window?.rootViewController = MainViewController()
-        window?.makeKeyAndVisible()
+        guard let windowScene = scene as? UIWindowScene else { return }
+
+        let window = UIWindow(windowScene: windowScene)
+
+        let context = CoreDataManager.shared.context
+        let challenge = CoreDataManager.shared.getOrCreateChallenge(named: "Novena", startDate: Date(), endDate: Calendar.current.date(byAdding: .day, value: 30, to: Date())!)
+
+        let appCoordinator = AppCoordinator(window: window, context: context, challenge: challenge)
+        appCoordinator.start()
+
+        self.window = window
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
