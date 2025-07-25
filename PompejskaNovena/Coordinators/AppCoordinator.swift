@@ -55,12 +55,14 @@ final class AppCoordinator {
         calendarCoordinator.start()
         self.calendarCoordinator = calendarCoordinator
         
-        let viewController = HomeViewController()
-        viewController.buttonClickedCallback = buttonClicked
+        let homeNav = UINavigationController()
+        homeNav.tabBarItem = UITabBarItem(title: "Domov", image: UIImage(systemName: "house"), tag: 1)
         
-        let homeNav = UINavigationController(rootViewController: viewController)
-        homeNav.tabBarItem.image = UIImage(systemName: "house")
-        homeNav.title = "Domov"
+        let homeCoordinator = HomeCoordinator(
+            navigationController: homeNav,
+            challenge: challenge,
+            context: context)
+        homeCoordinator.start()
 
         self.mainTabBarController!.setViewControllers([homeNav, calendarNav, rosaryNav, aboutNav], animated: true)
 
@@ -68,7 +70,4 @@ final class AppCoordinator {
         window.makeKeyAndVisible()
     }
     
-    func buttonClicked()-> Void {
-        mainTabBarController?.selectedIndex = 1
-    }
 }

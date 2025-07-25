@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
 
         let context = CoreDataManager.shared.context
-        let challenge = CoreDataManager.shared.getOrCreateChallenge(named: "Novena", startDate: Date(), endDate: Calendar.current.date(byAdding: .day, value: 30, to: Date())!)
+        let challenge = CoreDataManager.shared.getChallenge(named: "Pompejská Novéna")
 
         let appCoordinator = AppCoordinator(window: window, context: context, challenge: challenge)
         appCoordinator.start()

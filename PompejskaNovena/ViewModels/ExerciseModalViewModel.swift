@@ -17,7 +17,7 @@ final class ExerciseModalViewModel: ObservableObject {
 
     // MARK: - Private
     private let context: NSManagedObjectContext
-    private let exerciseTypes = ["Pushups", "Plank", "Squats"]
+    private let exerciseTypes = ["Radostný", "Bolestný", "Slávnostný"]
     private var existingEntries: [String: ExerciseEntry] = [:]
 
     // MARK: - Init

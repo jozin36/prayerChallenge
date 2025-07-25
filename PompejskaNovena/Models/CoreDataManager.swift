@@ -39,7 +39,7 @@ final class CoreDataManager {
         }
     }
     
-    func getOrCreateChallenge(named name: String, startDate: Date, endDate: Date) -> Challenge {
+    func getOrCreateChallenge(named name: String, startDate: Date) -> Challenge {
         let request: NSFetchRequest<Challenge> = Challenge.fetchRequest()
         request.predicate = NSPredicate(format: "name == %@", name)
         request.fetchLimit = 1
@@ -51,13 +51,15 @@ final class CoreDataManager {
         } catch {
             print("❌ Failed to fetch challenge named '\(name)':", error)
         }
+        
+        let startDate = Calendar.current.startOfDay(for: startDate)
 
         // Create new Challenge
         let newChallenge = Challenge(context: context)
         newChallenge.id = UUID()
         newChallenge.name = name
         newChallenge.startDate = startDate
-        newChallenge.endDate = endDate
+        newChallenge.endDate = Calendar.current.date(byAdding: .day, value: 53, to: startDate)!
 
         do {
             try context.save()

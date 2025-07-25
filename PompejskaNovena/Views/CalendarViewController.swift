@@ -47,7 +47,9 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
         calendarView.backgroundColor = UIColor(cgColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0.1))
         calendarView.selectionBehavior = UICalendarSelectionSingleDate(delegate: self)
         
-        calendarView.availableDateRange = DateInterval(start: Date(), end: Calendar.current.date(byAdding: .year, value: 1, to: Date())!)
+        if let challenge = viewModel.getChallenge() {
+            calendarView.availableDateRange = DateInterval(start: challenge.startDate, end: challenge.endDate)
+        }
         
         view.addSubview(calendarView)
         
@@ -60,8 +62,7 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
     }
     
     func calendarView(_ calendarView: UICalendarView, didSelectDate dateComponents: DateComponents?) {
-//        guard let date = dateComponents.flatMap({ Calendar.current.date(from: $0) }) else { return }
-//        onDateSelected?(date)
+
     }
     
     func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
@@ -73,7 +74,7 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
         if let date = Calendar.current.date(from: components)
         {
             print("on date selected: \(date)")
-            onDateSelected?(date)
+            self.onDateSelected?(date)
         }
     }
     

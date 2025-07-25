@@ -60,4 +60,8 @@ class CalendarViewModel {
     func refreshDecorations() {
         onRequestDecorationRefresh?()
     }
+    
+    func getChallenge() -> Challenge? {
+        return self.challenge
+    }
 }

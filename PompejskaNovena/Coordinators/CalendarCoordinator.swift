@@ -31,8 +31,8 @@ final class CalendarCoordinator {
         self.calendarViewModel = viewModel
 
         let calendarVC = CalendarViewController(viewModel: viewModel)
-        calendarVC.onDateSelected = { [weak self] date in
-            self?.presentExerciseModal(for: date)
+        calendarVC.onDateSelected = { date in
+            self.presentExerciseModal(for: date)
         }
 
         navigationController.pushViewController(calendarVC, animated: true)
