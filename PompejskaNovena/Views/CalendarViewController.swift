@@ -42,6 +42,7 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
         calendarView.wantsDateDecorations = true
         calendarView.backgroundColor = UIColor(cgColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0.1))
         calendarView.selectionBehavior = UICalendarSelectionSingleDate(delegate: self)
+        calendarView.locale = Locale(identifier: "sk_SK")
         
         view.addSubview(calendarView)
         
@@ -54,7 +55,7 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        if let challenge = viewModel.getChallenge() {
+        if let challenge = CoreDataManager.shared.getCurrentChallenge() {
             calendarView.availableDateRange = DateInterval(start: challenge.startDate, end: challenge.endDate)
         }
     }

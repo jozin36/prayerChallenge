@@ -9,6 +9,7 @@ import CoreData
 
 final class NewChallengeViewController: UIViewController {
     private let viewModel: NewChallengeViewModel
+    var onChallengeCreated: ((Challenge) -> Void)?
 
     private let nameField = UITextField()
     private let mottoView = UITextView()
@@ -18,8 +19,6 @@ final class NewChallengeViewController: UIViewController {
     private let cancelButton = UIButton(type: .system)
     private let alertLabel = UILabel()
     private let warningLabel = UILabel()
-
-    var onChallengeCreated: ((Challenge) -> Void)?
 
     init(viewModel: NewChallengeViewModel) {
         self.viewModel = viewModel
@@ -82,6 +81,8 @@ final class NewChallengeViewController: UIViewController {
 
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .inline
+        datePicker.locale = Locale(identifier: "sk_SK")
+        datePicker.calendar = Calendar.autoupdatingCurrent
         //datePicker.minimumDate = Date()
         
         [startButton, cancelButton].forEach { button in

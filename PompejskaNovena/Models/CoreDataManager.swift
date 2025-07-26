@@ -171,4 +171,19 @@ final class CoreDataManager {
             return []
         }
     }
+    
+    func deleteAllChallenges(context: NSManagedObjectContext) {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Challenge.fetchRequest()
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+
+        do {
+            try context.execute(deleteRequest)
+            try context.save()
+            
+            self.challenge = nil
+            print("✅ All challenges deleted successfully.")
+        } catch {
+            print("❌ Failed to delete challenges: \(error)")
+        }
+    }
 }

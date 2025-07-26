@@ -18,18 +18,23 @@ final class NewChallengeViewModel {
     init(context: NSManagedObjectContext) {
         self.context = context
     }
+    
+    func deleteOldChallenge() {
+        CoreDataManager.shared.deleteAllChallenges(context: self.context)
+    }
 
     func saveChallenge() -> Challenge? {
         let startDate = Calendar.current.startOfDay(for: startDate)
-
-        let challenge = Challenge(context: context)
-        challenge.id = UUID()
-        challenge.name = "Pompejská Novéna"
-        challenge.note = note
-        challenge.startDate = startDate
-        challenge.endDate = Calendar.current.date(byAdding: .day, value: 53, to: startDate)! // 54-day challenge
-
+        deleteOldChallenge()
+        
         do {
+            let challenge = Challenge(context: context)
+            challenge.id = UUID()
+            challenge.name = "Pompejská Novéna"
+            challenge.note = note
+            challenge.startDate = startDate
+            challenge.endDate = Calendar.current.date(byAdding: .day, value: 53, to: startDate)! // 54-day challenge
+            
             try context.save()
             return challenge
         } catch {

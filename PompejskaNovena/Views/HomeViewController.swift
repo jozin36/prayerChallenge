@@ -151,6 +151,8 @@ class HomeViewController: UIViewController {
                 startButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             ])
         }
+        
+        updateProgress()
     }
     
     private func updateProgress() {
@@ -173,17 +175,3 @@ class HomeViewController: UIViewController {
     }
 }
 
-extension UIColor {
-    typealias RGBA = (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)
-    var rgba: RGBA? {
-        var (r, g, b, a): RGBA = (0, 0, 0, 0)
-        return self.getRed(&r, green: &g, blue: &b, alpha: &a) ? (r, g, b, a) : nil
-    }
-    var hexaRGB: String? {
-        guard let (red, green, blue, _) = rgba else { return nil }
-        return String(format: "#%02x%02x%02x",
-                      Int(red * 255),
-                      Int(green * 255),
-                      Int(blue * 255))
-    }
-}
