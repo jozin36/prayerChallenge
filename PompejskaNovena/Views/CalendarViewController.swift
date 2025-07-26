@@ -32,10 +32,6 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
         super.viewDidLoad()
 
         //view.backgroundColor = .systemPurple
-        
-        //let calendarContainer = UIView()
-        let calendarView = UICalendarView()
-        
         calendarView.translatesAutoresizingMaskIntoConstraints = false
         
         calendarView.calendar = .current
@@ -47,10 +43,6 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
         calendarView.backgroundColor = UIColor(cgColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0.1))
         calendarView.selectionBehavior = UICalendarSelectionSingleDate(delegate: self)
         
-        if let challenge = viewModel.getChallenge() {
-            calendarView.availableDateRange = DateInterval(start: challenge.startDate, end: challenge.endDate)
-        }
-        
         view.addSubview(calendarView)
         
         NSLayoutConstraint.activate([
@@ -59,6 +51,12 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
             calendarView.heightAnchor.constraint(equalToConstant: 450),
             calendarView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
         ])
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let challenge = viewModel.getChallenge() {
+            calendarView.availableDateRange = DateInterval(start: challenge.startDate, end: challenge.endDate)
+        }
     }
     
     func calendarView(_ calendarView: UICalendarView, didSelectDate dateComponents: DateComponents?) {
@@ -73,7 +71,6 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
         guard let components = dateComponents else { return }
         if let date = Calendar.current.date(from: components)
         {
-            print("on date selected: \(date)")
             self.onDateSelected?(date)
         }
     }

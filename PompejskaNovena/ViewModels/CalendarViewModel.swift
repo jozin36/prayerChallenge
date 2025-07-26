@@ -8,12 +8,10 @@ import UIKit
 import CoreData
 
 class CalendarViewModel {
-    private let challenge: Challenge?
     private let context: NSManagedObjectContext
     public var onRequestDecorationRefresh: (() -> Void)?
 
-    init(challenge: Challenge?, context: NSManagedObjectContext) {
-        self.challenge = challenge
+    init(context: NSManagedObjectContext) {
         self.context = context
     }
 
@@ -21,7 +19,7 @@ class CalendarViewModel {
         var count = 0
         guard let date = Calendar.current.date(from: dateComponents) else {return nil}
         
-        if let ch = challenge {
+        if let ch = CoreDataManager.shared.getCurrentChallenge() {
             count = CoreDataManager.shared.getCompletedExerciseCount(for: date, challenge: ch)
         }
         guard count > 0 else {
@@ -62,6 +60,6 @@ class CalendarViewModel {
     }
     
     func getChallenge() -> Challenge? {
-        return self.challenge
+        return CoreDataManager.shared.getCurrentChallenge()
     }
 }

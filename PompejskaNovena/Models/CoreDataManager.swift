@@ -12,6 +12,7 @@ final class CoreDataManager {
     static let shared = CoreDataManager()
     
     let container: NSPersistentContainer
+    private var challenge: Challenge? = nil
     
     var context: NSManagedObjectContext {
         container.viewContext
@@ -24,6 +25,18 @@ final class CoreDataManager {
                 fatalError("Core Data load failed: \(error)")
             }
         }
+    }
+    
+    func setCurrentChallenge(challenge: Challenge)-> Void {
+        self.challenge = challenge
+    }
+    
+    func getCurrentChallenge()-> Challenge? {
+        return self.challenge
+    }
+    
+    func findActiveChallenge()-> Challenge? {
+        return self.getChallenge(named: "Pompejská Novéna")
     }
     
     func getChallenge(named name: String) -> Challenge? {

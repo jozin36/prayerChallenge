@@ -20,14 +20,11 @@ final class NewChallengeViewModel {
     }
 
     func saveChallenge() -> Challenge? {
-        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return nil }
-        
         let startDate = Calendar.current.startOfDay(for: startDate)
 
         let challenge = Challenge(context: context)
         challenge.id = UUID()
-        challenge.name = trimmed
+        challenge.name = "Pompejská Novéna"
         challenge.note = note
         challenge.startDate = startDate
         challenge.endDate = Calendar.current.date(byAdding: .day, value: 53, to: startDate)! // 54-day challenge
@@ -39,5 +36,9 @@ final class NewChallengeViewModel {
             print("❌ Failed to save challenge:", error)
             return nil
         }
+    }
+    
+    func challengeExists()->Bool {
+        return CoreDataManager.shared.getCurrentChallenge() != nil
     }
 }

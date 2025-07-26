@@ -12,22 +12,20 @@ import CoreData
 final class CalendarCoordinator {
     // MARK: - Properties
     let navigationController: UINavigationController
-    private let challenge: Challenge?
     private let context: NSManagedObjectContext
 
     // Keep reference to modal coordinator or view controller if needed
     private var calendarViewModel: CalendarViewModel?
 
     // MARK: - Init
-    init(navigationController: UINavigationController, challenge: Challenge?, context: NSManagedObjectContext = CoreDataManager.shared.context) {
+    init(navigationController: UINavigationController, context: NSManagedObjectContext = CoreDataManager.shared.context) {
         self.navigationController = navigationController
-        self.challenge = challenge
         self.context = context
     }
 
     // MARK: - Start
     func start() {
-        let viewModel = CalendarViewModel(challenge: challenge, context: context)
+        let viewModel = CalendarViewModel(context: context)
         self.calendarViewModel = viewModel
 
         let calendarVC = CalendarViewController(viewModel: viewModel)
@@ -40,7 +38,7 @@ final class CalendarCoordinator {
 
     // MARK: - Present Modal
     private func presentExerciseModal(for date: Date) {
-        let modalViewModel = ExerciseModalViewModel(date: date, challenge: challenge, context: context)
+        let modalViewModel = ExerciseModalViewModel(date: date, context: context)
 
         let modalVC = ExerciseModalViewController(viewModel: modalViewModel)
         modalVC.onSave = { [weak self] in

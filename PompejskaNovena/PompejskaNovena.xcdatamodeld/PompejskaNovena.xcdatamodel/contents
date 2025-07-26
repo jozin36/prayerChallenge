@@ -6,7 +6,7 @@
         <attribute name="name" attributeType="String"/>
         <attribute name="note" optional="YES" attributeType="String"/>
         <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="exercises" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ExerciseEntry" inverseName="challenge" inverseEntity="ExerciseEntry"/>
+        <relationship name="exercises" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ExerciseEntry" inverseName="challenge" inverseEntity="ExerciseEntry"/>
     </entity>
     <entity name="ExerciseEntry" representedClassName="ExerciseEntry" syncable="YES">
         <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>

@@ -12,7 +12,6 @@ import CoreData
 final class ExerciseModalViewModel: ObservableObject {
     // MARK: - Public API
     private let date: Date
-    private let challenge: Challenge?
     @Published var exerciseStates: [String: Bool] = [:]
 
     // MARK: - Private
@@ -21,11 +20,11 @@ final class ExerciseModalViewModel: ObservableObject {
     private var existingEntries: [String: ExerciseEntry] = [:]
 
     // MARK: - Init
-    init(date: Date, challenge: Challenge?, context: NSManagedObjectContext) {
+    init(date: Date, context: NSManagedObjectContext) {
         self.date = Calendar.current.startOfDay(for: date)
-        self.challenge = challenge
         self.context = context
 
+        let challenge = CoreDataManager.shared.getCurrentChallenge()
         if ((challenge) != nil) {
             loadOrCreateExerciseEntries()
         }
@@ -33,7 +32,7 @@ final class ExerciseModalViewModel: ObservableObject {
 
     // MARK: - Load
     private func loadOrCreateExerciseEntries() {
-        guard let challenge = self.challenge else {return}
+        guard let challenge = CoreDataManager.shared.getCurrentChallenge() else {return}
         let results = CoreDataManager.shared.getAllExercises(for: date, challenge: challenge)
         
         for entry in results {

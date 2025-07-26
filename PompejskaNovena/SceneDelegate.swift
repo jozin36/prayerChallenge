@@ -22,9 +22,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
 
         let context = CoreDataManager.shared.context
-        let challenge = CoreDataManager.shared.getChallenge(named: "Pompejská Novéna")
+        if let challenge = CoreDataManager.shared.findActiveChallenge() {
+            CoreDataManager.shared.setCurrentChallenge(challenge: challenge)
+        }
 
-        let appCoordinator = AppCoordinator(window: window, context: context, challenge: challenge)
+        let appCoordinator = AppCoordinator(window: window, context: context)
         appCoordinator.start()
 
         self.window = window

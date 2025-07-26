@@ -11,10 +11,13 @@ final class NewChallengeViewController: UIViewController {
     private let viewModel: NewChallengeViewModel
 
     private let nameField = UITextField()
-    private let mottoField = UITextField()
+    private let mottoView = UITextView()
+    private let placeholderLabel = UILabel()
     private let datePicker = UIDatePicker()
     private let startButton = UIButton(type: .system)
     private let cancelButton = UIButton(type: .system)
+    private let alertLabel = UILabel()
+    private let warningLabel = UILabel()
 
     var onChallengeCreated: ((Challenge) -> Void)?
 
@@ -34,23 +37,55 @@ final class NewChallengeViewController: UIViewController {
 
     private func setupUI() {
         nameField.placeholder = "Pompejská Novéna"
-        nameField.text = "Pompejská Novéna"
+        nameField.text = "Pompejská Novéna na úmysel:"
         nameField.isEnabled = false
-        nameField.borderStyle = .roundedRect
+        nameField.borderStyle = .none
 
-        mottoField.placeholder = "Tvoj úmysel (voliteľné)"
-        mottoField.borderStyle = .roundedRect
+        //mottoField.placeholder = "Tvoj úmysel (voliteľné)"
         
+        mottoView.font = .systemFont(ofSize: 16)
+        mottoView.layer.borderWidth = 1
+        mottoView.layer.borderColor = UIColor.systemGray4.cgColor
+        mottoView.layer.cornerRadius = 7
+        mottoView.isScrollEnabled = false // allows it to grow in height naturally
+        mottoView.translatesAutoresizingMaskIntoConstraints = false
+        mottoView.delegate = self
+        
+        // Style the placeholder label
+        placeholderLabel.text = "Napíš svoj úmysel"
+        placeholderLabel.font = mottoView.font
+        placeholderLabel.textColor = .placeholderText
+        placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
+        mottoView.addSubview(placeholderLabel)
+        
+        alertLabel.text = "Ak začnete znovu, všetky uložené dáta a história z predošlej novény sa vymažú!"
+        alertLabel.textColor = .systemRed
+        alertLabel.font = UIFont(name: "Arial", size: 12)
+        alertLabel.translatesAutoresizingMaskIntoConstraints = false
+        alertLabel.numberOfLines = 0
+        alertLabel.lineBreakMode = .byWordWrapping
+        alertLabel.textAlignment = .left
+        
+        warningLabel.text = "Upozornenie"
+        warningLabel.textColor = .systemRed
+        warningLabel.font = UIFont(name: "Arial", size: 16)
+        warningLabel.translatesAutoresizingMaskIntoConstraints = false
+        warningLabel.numberOfLines = 0
+        warningLabel.lineBreakMode = .byWordWrapping
+        warningLabel.textAlignment = .center
+        
+        view.addSubview(alertLabel)
+
         let startDateLabel = UILabel()
-        startDateLabel.text = "Počiatočný dátum"
+        startDateLabel.text = "Vyberte počiatočný dátum"
         startDateLabel.font = .systemFont(ofSize: 16, weight: .medium)
 
         datePicker.datePickerMode = .date
-        datePicker.preferredDatePickerStyle = .compact
-        datePicker.minimumDate = Date()
+        datePicker.preferredDatePickerStyle = .inline
+        //datePicker.minimumDate = Date()
         
         [startButton, cancelButton].forEach { button in
-            button.layer.cornerRadius = 5
+            button.layer.cornerRadius = 7
             button.backgroundColor = .systemPurple
             button.setTitleColor(.white, for: .normal)
             button.heightAnchor.constraint(equalToConstant: 44).isActive = true
@@ -63,17 +98,13 @@ final class NewChallengeViewController: UIViewController {
         cancelButton.setTitle("Zrušiť", for: .normal)
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
         
-        // Use a container stack for date label + picker
-        let dateStack = UIStackView(arrangedSubviews: [startDateLabel, datePicker])
-        dateStack.axis = .horizontal
-        dateStack.spacing = 4
-        dateStack.distribution = .equalSpacing
-
         let stack = UIStackView(arrangedSubviews: [
+            warningLabel,
+            alertLabel,
             nameField,
-            mottoField,
-            dateStack,
-            UIView(), // Spacer
+            mottoView,
+            startDateLabel,
+            datePicker,
             startButton,
             cancelButton
         ])
@@ -86,13 +117,29 @@ final class NewChallengeViewController: UIViewController {
             stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
             stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            stack.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+            stack.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            mottoView.heightAnchor.constraint(equalToConstant: 80),
+            // Position the placeholder inside the text view
+            placeholderLabel.topAnchor.constraint(equalTo: mottoView.topAnchor, constant: 8),
+            placeholderLabel.leadingAnchor.constraint(equalTo: mottoView.leadingAnchor, constant: 5),
+            alertLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            alertLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if (viewModel.challengeExists()) {
+            alertLabel.isHidden = false
+            warningLabel.isHidden = false
+        } else {
+            alertLabel.isHidden = true
+            warningLabel.isHidden = true
+        }
     }
 
     @objc private func startTapped() {
-        viewModel.name = nameField.text ?? ""
-        viewModel.note = mottoField.text ?? ""
+        viewModel.name = "Pompejská Novéna"
+        viewModel.note = mottoView.text ?? ""
         viewModel.startDate = datePicker.date
 
         guard let challenge = viewModel.saveChallenge() else {
@@ -109,5 +156,11 @@ final class NewChallengeViewController: UIViewController {
 
     @objc private func cancelTapped() {
         dismiss(animated: true)
+    }
+}
+
+extension NewChallengeViewController: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        placeholderLabel.isHidden = !textView.text.isEmpty
     }
 }

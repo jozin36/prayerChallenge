@@ -20,16 +20,14 @@ struct ChallengeProgress {
 }
 
 final class ChallengeProgressViewModel {
-    private let challenge: Challenge?
     private let context: NSManagedObjectContext
 
-    init(challenge: Challenge?, context: NSManagedObjectContext) {
-        self.challenge = challenge
+    init(context: NSManagedObjectContext) {
         self.context = context
     }
 
     func currentProgress() -> ChallengeProgress {
-        guard let challenge = self.challenge else {
+        guard let challenge = CoreDataManager.shared.getCurrentChallenge() else {
             return ChallengeProgress(percentage: 0.0, completed: 0, totalExpected: 0, isComplete: false, totalDays: 0, passedDays: 0, missedExercises: 0)
         }
         
@@ -77,6 +75,6 @@ final class ChallengeProgressViewModel {
     }
     
     func getChallenge() -> Challenge? {
-        return self.challenge
+        return CoreDataManager.shared.getCurrentChallenge()
     }
 }

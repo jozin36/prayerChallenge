@@ -148,6 +148,7 @@
 				DEVELOPMENT_TEAM = 4VMW5W8W82;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PompejskaNovena/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Novéna";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
@@ -178,6 +179,7 @@
 				DEVELOPMENT_TEAM = 4VMW5W8W82;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PompejskaNovena/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Novéna";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";

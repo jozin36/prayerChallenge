@@ -55,7 +55,7 @@ final class ExerciseModalViewController: UIViewController {
         saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
         
         [cancelButton, saveButton].forEach { button in
-            button.layer.cornerRadius = 5
+            button.layer.cornerRadius = 10
             button.backgroundColor = .systemPurple
             button.setTitleColor(.white, for: .normal)
             button.heightAnchor.constraint(equalToConstant: 44).isActive = true

@@ -10,14 +10,13 @@ import CoreData
 final class AppCoordinator {
     let window: UIWindow
     let context: NSManagedObjectContext
-    let challenge: Challenge?
 
     var mainTabBarController: MainViewController?
     var calendarCoordinator: CalendarCoordinator?
     
     private let rosaryNav = {
         let controller = UINavigationController(rootViewController: RosaryViewController())
-        controller.tabBarItem.image = UIImage(systemName: "heart.fill")
+        controller.tabBarItem.image = UIImage(named: "Rosary")
         controller.title = "Ruženec"
         
         return controller
@@ -32,10 +31,9 @@ final class AppCoordinator {
         return controller
     }()
 
-    init(window: UIWindow, context: NSManagedObjectContext, challenge: Challenge?) {
+    init(window: UIWindow, context: NSManagedObjectContext) {
         self.window = window
         self.context = context
-        self.challenge = challenge
     }
 
     func start() {
@@ -49,7 +47,6 @@ final class AppCoordinator {
         // Start CalendarCoordinator
         let calendarCoordinator = CalendarCoordinator(
             navigationController: calendarNav,
-            challenge: challenge,
             context: context
         )
         calendarCoordinator.start()
@@ -60,7 +57,6 @@ final class AppCoordinator {
         
         let homeCoordinator = HomeCoordinator(
             navigationController: homeNav,
-            challenge: challenge,
             context: context)
         homeCoordinator.start()
 
