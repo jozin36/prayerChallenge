@@ -43,20 +43,17 @@ final class ExerciseModalViewController: UIViewController {
         let spacer = UIView()
         spacer.translatesAutoresizingMaskIntoConstraints = false
 
-        let buttonStack = UIStackView(arrangedSubviews: [cancelButton, saveButton])
+        let buttonStack = UIStackView(arrangedSubviews: [saveButton])
         buttonStack.axis = .horizontal
         buttonStack.spacing = 40
         buttonStack.distribution = .fillEqually
 
-        cancelButton.setTitle("Zrušiť", for: .normal)
-        cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
-
-        saveButton.setTitle("Uložiť", for: .normal)
+        saveButton.setTitle("Hotovo", for: .normal)
         saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
         
-        [cancelButton, saveButton].forEach { button in
+        [saveButton].forEach { button in
             button.layer.cornerRadius = 10
-            button.backgroundColor = .systemPurple
+            button.backgroundColor = ColorProvider.shared.buttonColor
             button.setTitleColor(.white, for: .normal)
             button.heightAnchor.constraint(equalToConstant: 44).isActive = true
             button.setTitleColor(.black, for: .normal)
@@ -91,6 +88,8 @@ final class ExerciseModalViewController: UIViewController {
         toggle.isOn = viewModel.state(for: type)
         toggle.addAction(UIAction(handler: { [weak self] _ in
             self?.viewModel.toggleState(for: type)
+            self?.viewModel.save()
+            self?.onSave?()
         }), for: .valueChanged)
 
         let row = UIStackView(arrangedSubviews: [label, toggle])
@@ -105,8 +104,6 @@ final class ExerciseModalViewController: UIViewController {
     }
 
     @objc private func saveTapped() {
-        viewModel.save()
-        onSave?()
         dismiss(animated: true)
     }
 }

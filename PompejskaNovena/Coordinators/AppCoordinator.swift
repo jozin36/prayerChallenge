@@ -59,8 +59,13 @@ final class AppCoordinator {
             navigationController: homeNav,
             context: context)
         homeCoordinator.start()
-
-        self.mainTabBarController!.setViewControllers([homeNav, calendarNav, rosaryNav, aboutNav], animated: true)
+        
+        let settingsNav = UINavigationController()
+        settingsNav.tabBarItem = UITabBarItem(title: "Nastavenia", image: UIImage(systemName: "gearshape"), tag: 2)
+        let settingsCoordinator = SettingsCoordinator(navigationController: settingsNav)
+        settingsCoordinator.start()
+        
+        self.mainTabBarController!.setViewControllers([homeNav, calendarNav, rosaryNav, settingsNav, aboutNav], animated: true)
 
         window.rootViewController = tabBar
         window.makeKeyAndVisible()

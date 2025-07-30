@@ -13,6 +13,7 @@ final class CalendarCoordinator {
     // MARK: - Properties
     let navigationController: UINavigationController
     private let context: NSManagedObjectContext
+    private var viewController: CalendarViewController?
 
     // Keep reference to modal coordinator or view controller if needed
     private var calendarViewModel: CalendarViewModel?
@@ -32,18 +33,23 @@ final class CalendarCoordinator {
         calendarVC.onDateSelected = { date in
             self.presentExerciseModal(for: date)
         }
+        
+        calendarVC.onModalDismiss = {
+            self.calendarViewModel?.refreshDecorations()
+        }
 
+        self.viewController = calendarVC
         navigationController.pushViewController(calendarVC, animated: true)
     }
 
     // MARK: - Present Modal
     private func presentExerciseModal(for date: Date) {
         let modalViewModel = ExerciseModalViewModel(date: date, context: context)
-
         let modalVC = ExerciseModalViewController(viewModel: modalViewModel)
         modalVC.onSave = { [weak self] in
             self?.calendarViewModel?.refreshDecorations()
         }
+        viewController?.clearCalendarSelection()
 
         let nav = UINavigationController(rootViewController: modalVC)
         navigationController.present(nav, animated: true)

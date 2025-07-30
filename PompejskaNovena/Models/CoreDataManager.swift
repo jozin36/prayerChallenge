@@ -186,4 +186,31 @@ final class CoreDataManager {
             print("❌ Failed to delete challenges: \(error)")
         }
     }
+    
+    func areAllExercisesCompleted(for date: Date, challenge: Challenge) -> Bool {
+        let context = self.context
+        
+        let fetchRequest: NSFetchRequest<ExerciseEntry> = ExerciseEntry.fetchRequest()
+        
+        // Create date range (start of day to end of day)
+        let calendar = Calendar.current
+        guard let startOfDay = calendar.startOfDay(for: date) as NSDate?,
+              let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay as Date)?.addingTimeInterval(-1) as NSDate? else {
+            return false
+        }
+
+        fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "date >= %@ AND date <= %@", startOfDay, endOfDay),
+            NSPredicate(format: "challenge == %@", challenge)
+        ])
+
+        do {
+            let entries = try context.fetch(fetchRequest)
+            let completedCount = entries.filter { $0.isCompleted }.count
+            return completedCount == 3
+        } catch {
+            print("❌ Failed to fetch exercise entries: \(error)")
+            return false
+        }
+    }
 }

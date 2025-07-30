@@ -7,12 +7,14 @@
 
 import UIKit
 
-class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalendarSelectionSingleDateDelegate {
+class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalendarSelectionSingleDateDelegate, UIAdaptivePresentationControllerDelegate {
 
     var completedExercises: [DateComponents: [Bool]] = [:]
     let calendarView = UICalendarView()
     let viewModel: CalendarViewModel
     var onDateSelected: ((Date) -> Void)?
+    var onModalDismiss: (() -> Void)?
+    private var singleDateSelection: UICalendarSelectionSingleDate?
     
     init(viewModel: CalendarViewModel) {
         self.viewModel = viewModel
@@ -30,8 +32,6 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        //view.backgroundColor = .systemPurple
         calendarView.translatesAutoresizingMaskIntoConstraints = false
         
         calendarView.calendar = .current
@@ -41,7 +41,8 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
         calendarView.delegate = self
         calendarView.wantsDateDecorations = true
         calendarView.backgroundColor = UIColor(cgColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0.1))
-        calendarView.selectionBehavior = UICalendarSelectionSingleDate(delegate: self)
+        singleDateSelection = UICalendarSelectionSingleDate(delegate: self)
+        calendarView.selectionBehavior = singleDateSelection
         calendarView.locale = Locale(identifier: "sk_SK")
         
         view.addSubview(calendarView)
@@ -96,5 +97,18 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
             }
         }
         return nil
+    }
+    
+    func clearCalendarSelection() {
+        if let selection = singleDateSelection {
+            print("Clearing selection")
+            selection.selectedDate = nil
+        }
+    }
+    
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        // Modal was dismissed by swipe down or programmatically
+        print("test")
+        self.onModalDismiss?()
     }
 }

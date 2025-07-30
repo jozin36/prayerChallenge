@@ -32,6 +32,10 @@ final class NewChallengeViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         setupUI()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
 
     private func setupUI() {
@@ -56,6 +60,7 @@ final class NewChallengeViewController: UIViewController {
         placeholderLabel.textColor = .placeholderText
         placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
         mottoView.addSubview(placeholderLabel)
+        addDoneToolbar(to: mottoView)
         
         alertLabel.text = "Ak začnete znovu, všetky uložené dáta a história z predošlej novény sa vymažú!"
         alertLabel.textColor = .systemRed
@@ -87,7 +92,7 @@ final class NewChallengeViewController: UIViewController {
         
         [startButton, cancelButton].forEach { button in
             button.layer.cornerRadius = 7
-            button.backgroundColor = .systemPurple
+            button.backgroundColor = ColorProvider.shared.backgroundColour
             button.setTitleColor(.white, for: .normal)
             button.heightAnchor.constraint(equalToConstant: 44).isActive = true
             button.setTitleColor(.black, for: .normal)
@@ -137,6 +142,17 @@ final class NewChallengeViewController: UIViewController {
             warningLabel.isHidden = true
         }
     }
+    
+    func addDoneToolbar(to textView: UITextView) {
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        
+        let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let done = UIBarButtonItem(title: "Hotovo", style: .done, target: self, action: #selector(dismissKeyboard))
+        
+        toolbar.setItems([flex, done], animated: false)
+        textView.inputAccessoryView = toolbar
+    }
 
     @objc private func startTapped() {
         viewModel.name = "Pompejská Novéna"
@@ -157,6 +173,10 @@ final class NewChallengeViewController: UIViewController {
 
     @objc private func cancelTapped() {
         dismiss(animated: true)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 }
 

@@ -117,11 +117,11 @@ class AboutViewController: UIViewController {
         infoText.append(biography)
         
         textView.text = infoText
-        scrollView.backgroundColor = .systemPurple
-        textView.backgroundColor = .systemPurple
-        contentView.backgroundColor = .systemPurple
+        scrollView.backgroundColor = ColorProvider.shared.backgroundColour
+        textView.backgroundColor = ColorProvider.shared.backgroundColour
+        contentView.backgroundColor = ColorProvider.shared.backgroundColour
         
-        scrollView.tintColor = .systemPurple
+        scrollView.tintColor = ColorProvider.shared.backgroundColour
         
         textView.textColor = .black
         textView.isEditable = false

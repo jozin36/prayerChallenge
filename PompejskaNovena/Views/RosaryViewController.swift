@@ -48,7 +48,7 @@ class FAQCardCell: UITableViewCell {
 
         answerLabel.font = .systemFont(ofSize: 15)
         answerLabel.numberOfLines = 0
-        answerLabel.textColor = .darkGray
+        answerLabel.textColor = UIColor(cgColor: CGColor(gray: 0.0, alpha: 0.8))
         answerLabel.isHidden = true // hidden initially
 
         chevron.image = UIImage(systemName: "chevron.down")
@@ -79,8 +79,8 @@ class FAQCardCell: UITableViewCell {
             stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
             stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
 
-            chevron.widthAnchor.constraint(equalToConstant: 16),
-            chevron.heightAnchor.constraint(equalToConstant: 16),
+            chevron.widthAnchor.constraint(equalToConstant: 18),
+            chevron.heightAnchor.constraint(equalToConstant: 18),
         ])
     }
 
@@ -219,6 +219,12 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     Ďalších 27 dní sa modlíme ďakovnú časť novény a každý deň po zakončení každej časti ruženca sa pomodlíme ešte nasledujúcu modlitbu:
                     
                     Čo ti môžem dať, Kráľovná plná lásky? Zverujem ti celý svoj život. Panna posvätného ruženca z Pompejí, budem šíriť tvoju chválu, koľko mi len sily budú stačiť, lebo som vzýval tvoju pomoc a prišla mi Božia pomoc. Všade budem svedčiť o tvojom milosrdenstve. Budem šíriť ružencovú pobožnosť, koľko len budem vládať, a všetkým budem hovoriť o tvojej dobrote voči mne, aby k tebe prišli aj nehodní hriešnici ako ja. Keby celý svet vedel, aká si dobrá a ako sa zmilúvaš nad tými, čo trpia, všetky stvorenia by sa utiekali k tebe. Amen.
+                    """
+        ),
+        FAQItem(
+            question: "Čo ak som sa nestihol pomodliť všetky 3 ružence za deň ?",
+            answer: """
+                    Pokiaľ sa vám stane, že ste sa nestihli pomodliť všetky 3 ružence za daný deň, nič strašné sa nestalo, len je potrebné sa ich nasledujúci deň domodliť (okrem tých, ktoré máte za daný deň), tak aby boli pomodlené všetky. V prípade že takýmto spôsobom sa vám ružence po čase nabalia a mustíe "dobiehať" viac ako 6 ružencov, odporúčame začať sa modliť novénu odzačiatku. 
                     """
         ),
     ]
