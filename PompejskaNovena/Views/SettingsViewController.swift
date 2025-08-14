@@ -13,10 +13,28 @@ class SettingsViewController: UIViewController {
     private let switchLabel = UILabel()
     
     private let stackView = UIStackView()
-    private var reminderTimes: [Date] = [Date(), Date(), Date()] // default times
     private var timeButtons: [UIButton] = []
     private var reminderStack = UIStackView()
     private var toggleButtons: [UISwitch] = []
+    private var reminderTimes: [Date] = {
+        let stored = UserDefaults.standard.array(forKey: "reminderTimes") as? [Double]
+            
+        if let stored = stored {
+            return stored.map { Date(timeIntervalSince1970: $0) }
+        } else {
+            // Default times: 07:00, 15:00, 18:00
+            let calendar = Calendar.current
+            let today = Date()
+            let times = [
+                DateComponents(hour: 7, minute: 0),
+                DateComponents(hour: 15, minute: 0),
+                DateComponents(hour: 18, minute: 0)
+            ]
+            return times.compactMap {
+                calendar.date(bySettingHour: $0.hour ?? 0, minute: $0.minute ?? 0, second: 0, of: today)
+            }
+        }
+    }()
     
     init(viewModel: SettingsViewModel) {
         self.viewModel = viewModel
@@ -32,12 +50,11 @@ class SettingsViewController: UIViewController {
         title = "Nastavenia"
         
         setupUI()
-        loadSavedSettings()
     }
     
     private func setupReminderSection()-> UIStackView {
         let remindersLabel = UILabel()
-        remindersLabel.text = "Reminders per day:"
+        remindersLabel.text = "Upozornenia cez deň:"
         remindersLabel.font = .systemFont(ofSize: 17)
 
         // Create vertical stack for reminder buttons
@@ -51,12 +68,14 @@ class SettingsViewController: UIViewController {
             icon.widthAnchor.constraint(equalToConstant: 30).isActive = true
             icon.heightAnchor.constraint(equalToConstant: 30).isActive = true
             
-            button.setTitle("08:00", for: .normal)
+            button.setTitle(reminderTimes[index].formatted(date: .omitted, time: .shortened), for: .normal)
             button.setTitleColor(.systemBlue, for: .normal)
             button.titleLabel?.font = .systemFont(ofSize: 20, weight: .medium)
             button.contentHorizontalAlignment = .left
+            button.isHidden = !notificationSwitch.isOn
             
             let toggleSwitch = toggleButtons[index]
+            toggleSwitch.addTarget(self, action: #selector(didSwitchRemainder), for: .valueChanged)
 
             let row = UIStackView(arrangedSubviews: [icon, button, toggleSwitch])
             row.axis = .horizontal
@@ -77,7 +96,7 @@ class SettingsViewController: UIViewController {
 
     private func setupUI() {
         // Switch row
-        switchLabel.text = "Denné upozornenia"
+        switchLabel.text = "Zapnúť denné upozornenia"
         switchLabel.font = .systemFont(ofSize: 17)
         self.view.backgroundColor = ColorProvider.shared.backgroundColour
         
@@ -86,6 +105,8 @@ class SettingsViewController: UIViewController {
         switchRow.distribution = .equalSpacing
         
         notificationSwitch.addTarget(self, action: #selector(didToggleSwitch), for: .valueChanged)
+        let isOn = UserDefaults.standard.bool(forKey: "notificationsEnabled")
+        notificationSwitch.isOn = isOn
         
         for index in 0..<3 {
             let button = UIButton(type: .system)
@@ -117,6 +138,10 @@ class SettingsViewController: UIViewController {
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24)
         ])
     }
+    
+    @objc private func didSwitchRemainder() {
+        self.scheduleNotifications()
+    }
 
     @objc private func didToggleSwitch() {
         let isOn = notificationSwitch.isOn
@@ -129,15 +154,14 @@ class SettingsViewController: UIViewController {
             UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         }
     }
+    
+    private func saveReminderTimes() {
+        let timeStamps = reminderTimes.map { $0.timeIntervalSince1970 }
+        UserDefaults.standard.set(timeStamps, forKey: "reminderTimes")
+    }
 
     private func saveSwitchState(_ isOn: Bool) {
         UserDefaults.standard.set(isOn, forKey: "notificationsEnabled")
-    }
-
-    private func loadSavedSettings() {
-        let isOn = UserDefaults.standard.bool(forKey: "notificationsEnabled")
-        notificationSwitch.isOn = isOn
-        timeButtons.forEach { $0.isHidden = !isOn }
     }
 
     private func requestNotificationPermissionIfNeeded() {
@@ -175,9 +199,9 @@ class SettingsViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Nastaviť", style: .default, handler: { _ in
             self.reminderTimes[index] = picker.date
             self.timeButtons[index].setTitle(self.timeString(for: picker.date), for: .normal)
-            // Optional: save & reschedule here
+            self.saveReminderTimes()
         }))
-
+        
         present(alert, animated: true)
     }
 
@@ -194,20 +218,22 @@ class SettingsViewController: UIViewController {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
 
         for (index, date) in reminderTimes.enumerated() {
-            let dateComponents = Calendar.current.dateComponents([.hour, .minute], from: date)
-
-            let content = UNMutableNotificationContent()
-            content.title = "Don’t forget your exercises!"
-            content.body = "Stay consistent — you’ve got this!"
-            content.sound = .default
-
-            let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-
-            let request = UNNotificationRequest(identifier: "dailyReminder\(index)", content: content, trigger: trigger)
-
-            UNUserNotificationCenter.current().add(request) { error in
-                if let error = error {
-                    print("❌ Failed to schedule: \(error.localizedDescription)")
+            if (toggleButtons[index].isOn) {
+                let dateComponents = Calendar.current.dateComponents([.hour, .minute], from: date)
+                
+                let content = UNMutableNotificationContent()
+                content.title = "Pompejská novéna"
+                content.body = "Nezabudni sa pomodliť ruženec!"
+                content.sound = .default
+                
+                let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+                
+                let request = UNNotificationRequest(identifier: "dailyReminder\(index)", content: content, trigger: trigger)
+                
+                UNUserNotificationCenter.current().add(request) { error in
+                    if let error = error {
+                        print("❌ Failed to schedule: \(error.localizedDescription)")
+                    }
                 }
             }
         }
