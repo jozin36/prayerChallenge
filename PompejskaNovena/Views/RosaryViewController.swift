@@ -196,8 +196,13 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     3. Ježiš, ktorý ohlasoval Božie kráľovstvo a vyzýval ľud na pokánie.
                     4. Ježiš, ktorý sa ukázal v božskej sláve na vrchu premenenia.
                     5. Ježiš, ktorý nám dal seba samého za pokrm a nápoj v Oltárnej sviatosti.
-                    
+                    """
+        ),
+        FAQItem(
+            question: "Ruženec svetla (skrátená verzia)",
+            answer: """
                     Skrátená verzia tajomstiev ruženca svetla (schválená Konferenciou Biskupov Slovenska r. 2003):
+                    
                     1. Ježiš, ktorý bol pokrstený v Jordáne.
                     2. Ježiš, ktorý zjavil seba samého na svadbe v Káne.
                     3. Ježiš, ktorý ohlasoval Božie kráľovstvo a pokánie.
@@ -222,9 +227,9 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     """
         ),
         FAQItem(
-            question: "Čo ak som sa nestihol pomodliť všetky 3 ružence za deň ?",
+            question: "Čo ak som sa nestihol pomodliť niektorý z ružencov v daný deň?",
             answer: """
-                    Pokiaľ sa vám stane, že ste sa nestihli pomodliť všetky 3 ružence za daný deň, nič strašné sa nestalo, len je potrebné sa ich nasledujúci deň domodliť (okrem tých, ktoré máte za daný deň), tak aby boli pomodlené všetky. V prípade že takýmto spôsobom sa vám ružence po čase nabalia a mustíe "dobiehať" viac ako 6 ružencov, odporúčame začať sa modliť novénu odzačiatku. 
+                    Pokiaľ sa vám stane, že ste sa nestihli pomodliť všetky ružence za daný deň, nič strašné sa nestalo, len je potrebné sa ich nasledujúci deň domodliť (okrem tých, ktoré už máte na daný deň), tak aby boli pomodlené všetky. V prípade že takýmto spôsobom sa vám ružence po čase nabalia a mustíe "dobiehať" viac ako 3 ružence, odporúčame začať sa modliť novénu odzačiatku. Všeobecne by malo platiť, že za celých 54 dní sa pomodlíte každý deň aspoň jeden ruženec. Pokiaľ sa vám stane. že sa vám nepodarí v niektorý deň pomodliť sa ani jeden ruženec, je potrebné novénu začať odznovu.
                     """
         ),
     ]
