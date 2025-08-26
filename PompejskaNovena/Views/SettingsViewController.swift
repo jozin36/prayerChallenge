@@ -60,6 +60,7 @@ class SettingsViewController: UIViewController {
         // Create vertical stack for reminder buttons
         reminderStack.axis = .vertical
         reminderStack.spacing = 12
+        let toggleButtonsState = UserDefaults.standard.array(forKey: "reminderToggleButtons") as? [Bool]
 
         for (index, button) in timeButtons.enumerated() {
             let icon = UIImageView(image: UIImage(systemName: "clock"))
@@ -76,6 +77,8 @@ class SettingsViewController: UIViewController {
             
             let toggleSwitch = toggleButtons[index]
             toggleSwitch.addTarget(self, action: #selector(didSwitchRemainder), for: .valueChanged)
+            
+            toggleSwitch.isOn = toggleButtonsState != nil ? toggleButtonsState![index] : false
 
             let row = UIStackView(arrangedSubviews: [icon, button, toggleSwitch])
             row.axis = .horizontal
@@ -140,6 +143,7 @@ class SettingsViewController: UIViewController {
     }
     
     @objc private func didSwitchRemainder() {
+        self.saveReminderTimes()
         self.scheduleNotifications()
     }
 
@@ -158,6 +162,9 @@ class SettingsViewController: UIViewController {
     private func saveReminderTimes() {
         let timeStamps = reminderTimes.map { $0.timeIntervalSince1970 }
         UserDefaults.standard.set(timeStamps, forKey: "reminderTimes")
+        
+        let boolVals = toggleButtons.map( {$0.isOn } )
+        UserDefaults.standard.set(boolVals, forKey: "reminderToggleButtons")
     }
 
     private func saveSwitchState(_ isOn: Bool) {
@@ -200,6 +207,7 @@ class SettingsViewController: UIViewController {
             self.reminderTimes[index] = picker.date
             self.timeButtons[index].setTitle(self.timeString(for: picker.date), for: .normal)
             self.saveReminderTimes()
+            self.scheduleNotifications()
         }))
         
         present(alert, animated: true)
