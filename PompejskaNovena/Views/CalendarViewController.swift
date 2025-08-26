@@ -61,7 +61,7 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
             calendarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             calendarView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             calendarView.heightAnchor.constraint(equalToConstant: 450),
-            calendarView.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 80),
+            calendarView.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 90),
         ])
     }
     

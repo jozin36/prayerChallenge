@@ -15,6 +15,7 @@ class ProgressView: UIView {
     private let percentageLabel = UILabel()
     private let daysLabel = UILabel()
     private let completedLabel = UILabel()
+    private let missedLabel = UILabel()
     
     private var progressConstraint: NSLayoutConstraint!
     
@@ -63,6 +64,12 @@ class ProgressView: UIView {
         daysLabel.textColor = .black
         addSubview(daysLabel)
         
+        missedLabel.translatesAutoresizingMaskIntoConstraints = false
+        missedLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        missedLabel.textAlignment = .center
+        missedLabel.textColor = .systemRed
+        addSubview(missedLabel)
+        
         completedLabel.textColor = .black
         completedLabel.font = UIFont(name: "Arial", size: 16)
         completedLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -90,16 +97,40 @@ class ProgressView: UIView {
             
             daysLabel.bottomAnchor.constraint(equalTo: containerView.topAnchor, constant: -35),
             daysLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            
+            missedLabel.topAnchor.constraint(equalTo: completedLabel.bottomAnchor, constant: 10),
+            missedLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
         ])
         
         progressConstraint = progressBar.widthAnchor.constraint(equalToConstant: 0)
         progressConstraint.isActive = true
     }
+    
+    private func getLocalizedString(_ number: Int)-> String{
+        if (number == 1) {
+            return "ruženec"
+        }
+        if (number > 1 && number < 5) {
+            return "ružence"
+        }
+        if (number >= 5 ) {
+            return "ružencov"
+        }
+        
+        return ""
+    }
 
     private func updateProgress() {
         percentageLabel.text = "\(Int(progress.percentage * 100))% hotovo"
-        completedLabel.text = "Pomodlených \(progress.completed) ružencov"
+        completedLabel.text = "Pomodlené \(progress.completed) \(getLocalizedString(progress.completed))"
         daysLabel.text = "\(Int(progress.passedDays + 1)) deň novény z \(progress.totalDays)"
+        
+        missedLabel.text = "Meškáš \(progress.missedExercises) "
+        missedLabel.text?.append(getLocalizedString(progress.missedExercises))
+        
+        missedLabel.isHidden = progress.missedExercises <= 0
+        
+        
         layoutIfNeeded()
         
         let clamped = min(max(progress.percentage, 0), 1)

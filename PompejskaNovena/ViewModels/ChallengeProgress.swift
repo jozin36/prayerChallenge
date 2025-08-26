@@ -66,7 +66,7 @@ final class ChallengeProgressViewModel {
                 isComplete: completed >= totalExpected,
                 totalDays: totalDays + 1,
                 passedDays: passedDays,
-                missedExercises: (passedDays*3) - completed
+                missedExercises: (passedDays * 3) - completed
             )
         } catch {
             print("❌ Failed to count completed exercises:", error)

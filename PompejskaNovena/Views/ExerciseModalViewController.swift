@@ -14,7 +14,7 @@ final class ExerciseModalViewController: UIViewController {
     init(viewModel: ExerciseModalViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        self.title = "Zapísať ružence"
+        self.title = self.viewModel.getDate().formatted(date: .long, time: .omitted)
     }
 
     required init?(coder: NSCoder) {

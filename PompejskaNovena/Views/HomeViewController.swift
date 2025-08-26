@@ -113,7 +113,10 @@ class HomeViewController: UIViewController {
     }
     
     private func updateProgress() {
-        progressView.progress = viewModel.currentProgress()
+        let progress = viewModel.currentProgress()
+        progressView.progress = progress
+        
+        restartButton.isHidden = (progress.missedExercises <= 0)
     }
     
     @objc private func didPushButton() {

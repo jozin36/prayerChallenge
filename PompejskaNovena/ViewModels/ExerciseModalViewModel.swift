@@ -82,4 +82,8 @@ final class ExerciseModalViewModel: ObservableObject {
     var sortedExerciseTypes: [String] {
         return exerciseTypes
     }
+    
+    public func getDate()->Date {
+        return self.date
+    }
 }
