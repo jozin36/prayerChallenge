@@ -186,7 +186,9 @@ class AboutViewController: UIViewController {
     private func makeParagraph(from text: String)-> NSAttributedString {
         return NSAttributedString(
             string: text,
-            attributes: [:]
+            attributes: [
+                .font: UIFont.systemFont(ofSize: CGFloat(14)),
+            ]
         )
     }
 }

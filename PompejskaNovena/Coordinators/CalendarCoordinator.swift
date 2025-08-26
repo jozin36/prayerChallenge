@@ -26,16 +26,18 @@ final class CalendarCoordinator {
 
     // MARK: - Start
     func start() {
-        let viewModel = CalendarViewModel(context: context)
-        self.calendarViewModel = viewModel
+        let calendarViewModel = CalendarViewModel(context: context)
+        let challengeViewModel = ChallengeProgressViewModel(context: self.context)
+        self.calendarViewModel = calendarViewModel
 
-        let calendarVC = CalendarViewController(viewModel: viewModel)
+        let calendarVC = CalendarViewController(calendarViewModel: calendarViewModel, progressViewModel: challengeViewModel)
         calendarVC.onDateSelected = { date in
             self.presentExerciseModal(for: date)
         }
         
         calendarVC.onModalDismiss = {
             self.calendarViewModel?.refreshDecorations()
+            calendarVC.updateProgress()
         }
 
         self.viewController = calendarVC
@@ -46,8 +48,11 @@ final class CalendarCoordinator {
     private func presentExerciseModal(for date: Date) {
         let modalViewModel = ExerciseModalViewModel(date: date, context: context)
         let modalVC = ExerciseModalViewController(viewModel: modalViewModel)
+        //modalVC.presentationController?.delegate = self.viewController
+        
         modalVC.onSave = { [weak self] in
             self?.calendarViewModel?.refreshDecorations()
+            self?.viewController?.updateProgress()
         }
         viewController?.clearCalendarSelection()
 

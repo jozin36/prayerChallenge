@@ -10,21 +10,18 @@ import UIKit
 class HomeViewController: UIViewController {
     public var buttonClickedCallback: (()-> Void)?
     
+    private let progressView: ProgressView
     private let viewModel: ChallengeProgressViewModel
-
-    private let progressBar = UIProgressView(progressViewStyle: .default)
-    private let percentageLabel = UILabel()
-    private let daysLabel = UILabel()
-    private let progressContainer = UIView()
     private let infoLabel = UILabel()
     private let noteLabel = UILabel()
     private let welcomeLabel = UILabel()
     private let startButton = UIButton()
     private let restartButton = UIButton()
-    private let completedLabel = UILabel()
 
     init(viewModel: ChallengeProgressViewModel) {
         self.viewModel = viewModel
+        progressView = ProgressView()
+        
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -52,38 +49,6 @@ class HomeViewController: UIViewController {
             noteLabel.textAlignment = .center
             view.addSubview(noteLabel)
             
-            progressContainer.translatesAutoresizingMaskIntoConstraints = false
-            percentageLabel.translatesAutoresizingMaskIntoConstraints = false
-            percentageLabel.font = .systemFont(ofSize: 18, weight: .medium)
-            percentageLabel.textAlignment = .center
-            percentageLabel.textColor = .black
-            view.addSubview(percentageLabel)
-            
-            daysLabel.translatesAutoresizingMaskIntoConstraints = false
-            daysLabel.font = .systemFont(ofSize: 18, weight: .medium)
-            daysLabel.textAlignment = .center
-            daysLabel.textColor = .black
-            view.addSubview(daysLabel)
-            
-            progressContainer.clipsToBounds = true
-            progressContainer.layer.cornerRadius = 10
-            progressContainer.backgroundColor = .systemGray5
-
-            progressBar.translatesAutoresizingMaskIntoConstraints = false
-            progressBar.trackTintColor = .clear // transparent, since container is the background
-            progressBar.progressTintColor = .systemGreen
-            progressBar.layer.cornerRadius = 10
-            progressBar.clipsToBounds = true
-            view.addSubview(progressBar)
-
-            view.addSubview(progressContainer)
-            progressContainer.addSubview(progressBar)
-            
-            completedLabel.textColor = .black
-            completedLabel.font = UIFont(name: "Arial", size: 16)
-            completedLabel.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview(completedLabel)
-            
             restartButton.backgroundColor = UIColor(cgColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0.1))
             restartButton.translatesAutoresizingMaskIntoConstraints = false
             restartButton.layer.cornerRadius = 7
@@ -93,6 +58,9 @@ class HomeViewController: UIViewController {
             restartButton.addTarget(self, action: #selector(self.didPushButton), for: .touchUpInside)
             view.addSubview(restartButton)
             
+            progressView.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(progressView)
+            
             NSLayoutConstraint.activate([
                 infoLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                 infoLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -100,29 +68,14 @@ class HomeViewController: UIViewController {
                 noteLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
                 noteLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
                 noteLabel.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
-                
-                progressContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-                progressContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
-                progressContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-                progressContainer.heightAnchor.constraint(equalToConstant: 20),
 
-                progressBar.leadingAnchor.constraint(equalTo: progressContainer.leadingAnchor),
-                progressBar.trailingAnchor.constraint(equalTo: progressContainer.trailingAnchor),
-                progressBar.topAnchor.constraint(equalTo: progressContainer.topAnchor),
-                progressBar.bottomAnchor.constraint(equalTo: progressContainer.bottomAnchor),
-
-                percentageLabel.topAnchor.constraint(equalTo: progressBar.bottomAnchor, constant: 12),
-                percentageLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-        
-                completedLabel.topAnchor.constraint(equalTo: percentageLabel.bottomAnchor, constant: 20),
-                completedLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                
-                daysLabel.topAnchor.constraint(equalTo: noteLabel.bottomAnchor, constant: 25),
-                daysLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                
                 restartButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
                 restartButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-                restartButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
+                restartButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+                
+                progressView.topAnchor.constraint(equalTo: noteLabel.bottomAnchor, constant: 150),
+                progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+                progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24)
             ])
         } else {
             welcomeLabel.text = "Vitajte v aplikácii"
@@ -153,19 +106,14 @@ class HomeViewController: UIViewController {
         updateProgress()
     }
     
-    private func updateProgress() {
-        let progress = viewModel.currentProgress()
-        progressBar.setProgress(Float(progress.percentage), animated: true)
-        percentageLabel.text = "\(Int(progress.percentage * 100))% hotovo"
-        
-        completedLabel.text = "Pomodlených \(progress.completed) ružencov"
-        daysLabel.text = "\(Int(progress.passedDays + 1)) deň novény z \(progress.totalDays)"
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         updateProgress()
+    }
+    
+    private func updateProgress() {
+        progressView.progress = viewModel.currentProgress()
     }
     
     @objc private func didPushButton() {

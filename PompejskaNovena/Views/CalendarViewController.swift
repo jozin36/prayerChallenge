@@ -11,16 +11,19 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
 
     var completedExercises: [DateComponents: [Bool]] = [:]
     let calendarView = UICalendarView()
-    let viewModel: CalendarViewModel
+    private let progressView: ProgressView = ProgressView()
+    let calendarViewModel: CalendarViewModel
+    let progressViewModel: ChallengeProgressViewModel
     var onDateSelected: ((Date) -> Void)?
     var onModalDismiss: (() -> Void)?
     private var singleDateSelection: UICalendarSelectionSingleDate?
     
-    init(viewModel: CalendarViewModel) {
-        self.viewModel = viewModel
+    init(calendarViewModel: CalendarViewModel, progressViewModel: ChallengeProgressViewModel) {
+        self.calendarViewModel = calendarViewModel
+        self.progressViewModel = progressViewModel
         super.init(nibName: nil, bundle: nil)
         
-        viewModel.onRequestDecorationRefresh = { [weak self] in
+        calendarViewModel.onRequestDecorationRefresh = { [weak self] in
             guard let self = self else { return }
             self.forceCalendarRedraw()
         }
@@ -45,13 +48,20 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
         calendarView.selectionBehavior = singleDateSelection
         calendarView.locale = Locale(identifier: "sk_SK")
         
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(progressView)
+        
         view.addSubview(calendarView)
         
         NSLayoutConstraint.activate([
+            progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
+            progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            
             calendarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             calendarView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             calendarView.heightAnchor.constraint(equalToConstant: 450),
-            calendarView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
+            calendarView.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 80),
         ])
     }
     
@@ -59,6 +69,8 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
         if let challenge = CoreDataManager.shared.getCurrentChallenge() {
             calendarView.availableDateRange = DateInterval(start: challenge.startDate, end: challenge.endDate)
         }
+        
+        updateProgress()
     }
     
     func calendarView(_ calendarView: UICalendarView, didSelectDate dateComponents: DateComponents?) {
@@ -66,7 +78,7 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
     }
     
     func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
-        return viewModel.calendarView(decorationFor: dateComponents)
+        return calendarViewModel.calendarView(decorationFor: dateComponents)
     }
     
     func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
@@ -110,5 +122,9 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
         // Modal was dismissed by swipe down or programmatically
         print("test")
         self.onModalDismiss?()
+    }
+    
+    public func updateProgress() {
+        progressView.progress = progressViewModel.currentProgress()
     }
 }
