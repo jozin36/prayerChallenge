@@ -130,9 +130,10 @@ class AboutViewController: UIViewController {
         textView.attributedText = attributedText
         
         scrollView.backgroundColor = ColorProvider.shared.backgroundColour
-        textView.backgroundColor = ColorProvider.shared.backgroundColour
-        contentView.backgroundColor = ColorProvider.shared.backgroundColour
+        textView.backgroundColor = ColorProvider.shared.grouppedBackroundColor
+        textView.layer.cornerRadius = 10
         
+        contentView.backgroundColor = ColorProvider.shared.backgroundColour
         scrollView.tintColor = ColorProvider.shared.backgroundColour
         
         textView.textColor = .label

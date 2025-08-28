@@ -39,14 +39,17 @@ final class NewChallengeViewController: UIViewController {
     }
 
     private func setupUI() {
+        self.view.backgroundColor = ColorProvider.shared.backgroundColour
+        
         nameField.placeholder = "Pompejská Novéna"
         nameField.text = "Pompejská Novéna na úmysel:"
         nameField.isEnabled = false
         nameField.borderStyle = .none
-
+        
         //mottoField.placeholder = "Tvoj úmysel (voliteľné)"
         
         mottoView.font = .systemFont(ofSize: 16)
+        mottoView.backgroundColor = ColorProvider.shared.grouppedBackroundColor
         mottoView.layer.borderWidth = 1
         mottoView.layer.borderColor = UIColor.systemGray4.cgColor
         mottoView.layer.cornerRadius = 7

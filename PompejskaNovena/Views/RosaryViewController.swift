@@ -37,7 +37,8 @@ class FAQCardCell: UITableViewCell {
         backgroundColor = .clear
         
         container.translatesAutoresizingMaskIntoConstraints = false
-        container.backgroundColor = .systemGroupedBackground
+        
+        container.backgroundColor = ColorProvider.shared.grouppedBackroundColor
         container.layer.cornerRadius = 12
 
         questionLabel.font = .systemFont(ofSize: 16, weight: .semibold)

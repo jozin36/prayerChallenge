@@ -43,7 +43,7 @@ class CalendarViewController: UIViewController, UICalendarViewDelegate, UICalend
         calendarView.layer.cornerRadius = 15
         calendarView.delegate = self
         calendarView.wantsDateDecorations = true
-        calendarView.backgroundColor = UIColor(cgColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0.1))
+        calendarView.backgroundColor = UIColor.black.withAlphaComponent(0.2)
         singleDateSelection = UICalendarSelectionSingleDate(delegate: self)
         calendarView.selectionBehavior = singleDateSelection
         calendarView.locale = Locale(identifier: "sk_SK")
