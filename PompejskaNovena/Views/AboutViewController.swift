@@ -135,7 +135,7 @@ class AboutViewController: UIViewController {
         
         scrollView.tintColor = ColorProvider.shared.backgroundColour
         
-        textView.textColor = .black
+        textView.textColor = .label
         textView.isEditable = false
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isScrollEnabled = false
@@ -168,7 +168,7 @@ class AboutViewController: UIViewController {
             string: "\n\(text)\n\n",
             attributes: [
                 .font: UIFont.boldSystemFont(ofSize: CGFloat(size)),
-                .foregroundColor: UIColor.black
+                .foregroundColor: UIColor.label
             ]
         )
     }
@@ -178,7 +178,7 @@ class AboutViewController: UIViewController {
             string: "\n\n\(text)\n\n",
             attributes: [
                 .font: UIFont.boldSystemFont(ofSize: CGFloat(size)),
-                .foregroundColor: UIColor.black
+                .foregroundColor: UIColor.label
             ]
         )
     }

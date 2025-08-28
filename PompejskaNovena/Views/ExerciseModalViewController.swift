@@ -53,10 +53,9 @@ final class ExerciseModalViewController: UIViewController {
         
         [saveButton].forEach { button in
             button.layer.cornerRadius = 10
-            button.backgroundColor = ColorProvider.shared.buttonColor
-            button.setTitleColor(.white, for: .normal)
+            button.backgroundColor = ColorProvider.shared.buttonColour
             button.heightAnchor.constraint(equalToConstant: 44).isActive = true
-            button.setTitleColor(.black, for: .normal)
+            button.setTitleColor(.label, for: .normal)
         }
         
         let mainStack = UIStackView(arrangedSubviews: [toggleStack, spacer, buttonStack])

@@ -92,10 +92,9 @@ final class NewChallengeViewController: UIViewController {
         
         [startButton, cancelButton].forEach { button in
             button.layer.cornerRadius = 7
-            button.backgroundColor = ColorProvider.shared.backgroundColour
-            button.setTitleColor(.white, for: .normal)
+            button.backgroundColor = ColorProvider.shared.buttonColour
+            button.setTitleColor(.label, for: .normal)
             button.heightAnchor.constraint(equalToConstant: 44).isActive = true
-            button.setTitleColor(.black, for: .normal)
         }
 
         startButton.setTitle("Začať novénu", for: .normal)

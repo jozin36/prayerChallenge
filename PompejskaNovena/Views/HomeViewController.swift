@@ -35,13 +35,13 @@ class HomeViewController: UIViewController {
     public func setupUI()->Void {
         if let challenge = viewModel.getChallenge() {
             infoLabel.text = "Pompejská novéna na úmysel:"
-            infoLabel.textColor = .black
+            infoLabel.textColor = .label
             infoLabel.font = UIFont(name: "Arial", size: 20)
             infoLabel.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(infoLabel)
             
             noteLabel.text = challenge.note
-            noteLabel.textColor = .black
+            noteLabel.textColor = .label
             noteLabel.font = UIFont(name: "Arial", size: 16)
             noteLabel.translatesAutoresizingMaskIntoConstraints = false
             noteLabel.numberOfLines = 0
@@ -53,8 +53,8 @@ class HomeViewController: UIViewController {
             restartButton.translatesAutoresizingMaskIntoConstraints = false
             restartButton.layer.cornerRadius = 7
             restartButton.setTitle("Začať odznovu", for: .normal)
-            restartButton.setTitleColor(.black, for: .normal)
-            restartButton.setTitleColor(.gray, for: .selected)
+            restartButton.setTitleColor(.label, for: .normal)
+            restartButton.setTitleColor(.systemGray, for: .selected)
             restartButton.addTarget(self, action: #selector(self.didPushButton), for: .touchUpInside)
             view.addSubview(restartButton)
             
@@ -79,17 +79,17 @@ class HomeViewController: UIViewController {
             ])
         } else {
             welcomeLabel.text = "Vitajte v aplikácii"
-            welcomeLabel.textColor = .black
+            welcomeLabel.textColor = .label
             welcomeLabel.font = UIFont(name: "Arial", size: 20)
             welcomeLabel.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(welcomeLabel)
             
-            startButton.backgroundColor = UIColor(cgColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0.1))
+            startButton.backgroundColor = ColorProvider.shared.buttonColour
             startButton.translatesAutoresizingMaskIntoConstraints = false
             startButton.layer.cornerRadius = 10
             startButton.setTitle("Začať pompejskú novénu", for: .normal)
-            startButton.setTitleColor(.black, for: .normal)
-            startButton.setTitleColor(.gray, for: .selected)
+            startButton.setTitleColor(.label, for: .normal)
+            startButton.setTitleColor(.systemGray, for: .selected)
             startButton.addTarget(self, action: #selector(self.didPushButton), for: .touchUpInside)
             view.addSubview(startButton)
             
@@ -97,7 +97,7 @@ class HomeViewController: UIViewController {
                 welcomeLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                 welcomeLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
                 startButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
-                startButton.heightAnchor.constraint(equalToConstant: 40),
+                startButton.heightAnchor.constraint(equalToConstant: 50),
                 startButton.widthAnchor.constraint(equalToConstant: 300),
                 startButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             ])

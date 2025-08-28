@@ -61,7 +61,7 @@ class ProgressView: UIView {
         daysLabel.translatesAutoresizingMaskIntoConstraints = false
         daysLabel.font = .systemFont(ofSize: 18, weight: .medium)
         daysLabel.textAlignment = .center
-        daysLabel.textColor = .black
+        daysLabel.textColor = .label
         addSubview(daysLabel)
         
         missedLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -70,7 +70,7 @@ class ProgressView: UIView {
         missedLabel.textColor = .systemRed
         addSubview(missedLabel)
         
-        completedLabel.textColor = .black
+        completedLabel.textColor = .label
         completedLabel.font = UIFont(name: "Arial", size: 16)
         completedLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(completedLabel)

@@ -19,6 +19,8 @@ class FAQCardCell: UITableViewCell {
     private let questionLabel = UILabel()
     private let answerLabel = UILabel()
     private let chevron = UIImageView()
+    private let stack = UIStackView()
+    private var answerHeightConstraint: NSLayoutConstraint!
 
     private var isExpanded = false
 
@@ -35,12 +37,8 @@ class FAQCardCell: UITableViewCell {
         backgroundColor = .clear
         
         container.translatesAutoresizingMaskIntoConstraints = false
-        container.backgroundColor = UIColor(cgColor: CGColor(gray: 1.0, alpha: 1.0))
+        container.backgroundColor = .systemGroupedBackground
         container.layer.cornerRadius = 12
-        container.layer.shadowColor = UIColor.black.cgColor
-        container.layer.shadowOpacity = 0.05
-        container.layer.shadowOffset = CGSize(width: 0, height: 2)
-        container.layer.shadowRadius = 4
 
         questionLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         questionLabel.numberOfLines = 0
@@ -48,8 +46,7 @@ class FAQCardCell: UITableViewCell {
 
         answerLabel.font = .systemFont(ofSize: 15)
         answerLabel.numberOfLines = 0
-        answerLabel.textColor = UIColor(cgColor: CGColor(gray: 0.0, alpha: 0.8))
-        answerLabel.isHidden = true // hidden initially
+        answerLabel.textColor = UIColor.label.withAlphaComponent(0.8)
 
         chevron.image = UIImage(systemName: "chevron.down")
         chevron.tintColor = .gray
@@ -60,13 +57,19 @@ class FAQCardCell: UITableViewCell {
         topRow.spacing = 8
         topRow.alignment = .center
 
-        let stack = UIStackView(arrangedSubviews: [topRow, answerLabel])
+        stack.addArrangedSubview(topRow)
+        stack.addArrangedSubview(answerLabel)
+        
         stack.axis = .vertical
         stack.spacing = 8
         stack.translatesAutoresizingMaskIntoConstraints = false
 
         container.addSubview(stack)
         contentView.addSubview(container)
+        
+        answerLabel.translatesAutoresizingMaskIntoConstraints = false
+        answerHeightConstraint = answerLabel.heightAnchor.constraint(equalToConstant: 0)
+        answerHeightConstraint.isActive = false // only when collapsed
 
         NSLayoutConstraint.activate([
             container.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
@@ -80,24 +83,28 @@ class FAQCardCell: UITableViewCell {
             stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
 
             chevron.widthAnchor.constraint(equalToConstant: 18),
-            chevron.heightAnchor.constraint(equalToConstant: 18),
+            chevron.heightAnchor.constraint(greaterThanOrEqualToConstant: 18),
         ])
     }
 
-    func configure(with item: FAQItem) {
+    func configure(with item: FAQItem, animated: Bool = false) {
         questionLabel.text = item.question
         answerLabel.text = item.answer
         isExpanded = item.isExpanded
+        
+        self.answerHeightConstraint.isActive = !self.isExpanded
 
-        // Animate visibility of answer
-        UIView.animate(withDuration: 0.5) {
-            //self.answerLabel.alpha = item.isExpanded ? 1 : 0
-            self.answerLabel.isHidden = !item.isExpanded
-        }
-
-        // Animate chevron rotation
-        UIView.animate(withDuration: 0.5) {
-            self.chevron.transform = item.isExpanded ? CGAffineTransform(rotationAngle: .pi) : .identity
+        if animated {
+            UIView.animate(withDuration: 0.5) {
+                self.chevron.transform = item.isExpanded ? CGAffineTransform(rotationAngle: .pi) : .identity
+                self.answerLabel.isHidden = false
+                self.answerLabel.alpha = item.isExpanded ? 1 : 0
+            }
+        } else {
+            // reset transform immediately to avoid reuse bugs
+            chevron.transform = item.isExpanded ? CGAffineTransform(rotationAngle: .pi) : .identity
+            answerLabel.alpha = isExpanded ? 1 : 0
+            answerLabel.isHidden = false
         }
     }
 }
@@ -105,6 +112,7 @@ class FAQCardCell: UITableViewCell {
 class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     private let tableView = UITableView()
+    private var lastTappedIndexPath: IndexPath?
     
     private var faqItems: [FAQItem] = [
         FAQItem(
@@ -247,8 +255,9 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tableView.register(FAQCardCell.self, forCellReuseIdentifier: "FAQCardCell")
         tableView.separatorStyle = .none
         tableView.backgroundColor = .clear
-        tableView.estimatedRowHeight = 100
+        
         tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 60
 
         view.addSubview(tableView)
         NSLayoutConstraint.activate([
@@ -262,25 +271,23 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            return faqItems.count
-        }
+        return faqItems.count
+    }
 
-        func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-            let item = faqItems[indexPath.row]
-            return item.isExpanded ? UITableView.automaticDimension : 60
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        lastTappedIndexPath = indexPath
+        
+        for i in 0..<faqItems.count {
+            faqItems[i].isExpanded = (i == indexPath.row) ? !faqItems[i].isExpanded : false
         }
+        tableView.reloadData()
+    }
 
-        func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            faqItems[indexPath.row].isExpanded.toggle()
-            tableView.reloadRows(at: [indexPath], with: .automatic)
-        }
-
-        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-            let item = faqItems[indexPath.row]
-            let cell = tableView.dequeueReusableCell(withIdentifier: "FAQCardCell", for: indexPath) as! FAQCardCell
-            cell.configure(with: item)
-            cell.selectionStyle = .none
-            return cell
-        }
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let item = faqItems[indexPath.row]
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FAQCardCell", for: indexPath) as! FAQCardCell
+        cell.configure(with: item, animated: indexPath == lastTappedIndexPath)
+        cell.selectionStyle = .none
+        return cell
+    }
 }
