@@ -41,4 +41,26 @@ class ColorProvider {
             }
         }
     }
+    
+    var tabBarTintColor: UIColor {
+        return UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor.white
+            default:
+                return UIColor.black
+            }
+        }
+    }
+    
+    var tabBarUnselectedColor: UIColor {
+        return UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor.systemGray2
+            default:
+                return UIColor.systemGray
+            }
+        }
+    }
 }

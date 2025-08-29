@@ -56,15 +56,18 @@ class SettingsViewController: UIViewController {
         let remindersLabel = UILabel()
         remindersLabel.text = "Upozornenia cez deň:"
         remindersLabel.font = .systemFont(ofSize: 17)
+        remindersLabel.textColor = .label
 
         // Create vertical stack for reminder buttons
         reminderStack.axis = .vertical
         reminderStack.spacing = 12
+        reminderStack.addArrangedSubview(remindersLabel)
+        
         let toggleButtonsState = UserDefaults.standard.array(forKey: "reminderToggleButtons") as? [Bool]
 
         for (index, button) in timeButtons.enumerated() {
             let icon = UIImageView(image: UIImage(systemName: "clock"))
-            icon.tintColor = .gray
+            icon.tintColor = .systemGray
             icon.translatesAutoresizingMaskIntoConstraints = false
             icon.widthAnchor.constraint(equalToConstant: 30).isActive = true
             icon.heightAnchor.constraint(equalToConstant: 30).isActive = true
@@ -73,7 +76,7 @@ class SettingsViewController: UIViewController {
             button.setTitleColor(.systemBlue, for: .normal)
             button.titleLabel?.font = .systemFont(ofSize: 20, weight: .medium)
             button.contentHorizontalAlignment = .left
-            button.isHidden = !notificationSwitch.isOn
+            button.isHidden = false
             
             let toggleSwitch = toggleButtons[index]
             toggleSwitch.addTarget(self, action: #selector(didSwitchRemainder), for: .valueChanged)

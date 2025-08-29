@@ -30,6 +30,8 @@ final class ExerciseModalViewController: UIViewController {
 
     // MARK: - UI Setup
     private func setupUI() {
+        self.view.backgroundColor = ColorProvider.shared.backgroundColour
+        
         toggleStack.axis = .vertical
         toggleStack.spacing = 20
         toggleStack.translatesAutoresizingMaskIntoConstraints = false

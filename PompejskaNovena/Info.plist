@@ -23,5 +23,9 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+    <key>ITSEncryptionExportComplianceCode</key>
+    <string></string>
 </dict>
 </plist>

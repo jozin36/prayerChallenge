@@ -78,10 +78,10 @@ class FAQCardCell: UITableViewCell {
             container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0),
             container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
 
-            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 10),
+            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 15),
             stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -10),
-            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 15),
+            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -15),
 
             chevron.widthAnchor.constraint(equalToConstant: 18),
             chevron.heightAnchor.constraint(greaterThanOrEqualToConstant: 18),
