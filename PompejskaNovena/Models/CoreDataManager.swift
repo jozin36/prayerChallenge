@@ -18,6 +18,21 @@ final class CoreDataManager {
         container.viewContext
     }
     
+    public func resetCoreData() {
+        self.deleteAllChallenges(context: self.context)
+        self.challenge = nil
+        saveContext()
+    }
+    
+    public func saveContext() {
+        do {
+            try context.save()
+        } catch {
+            print("❌ Failed to save context:", error)
+        }
+
+    }
+    
     private init() {
         container = NSPersistentContainer(name: "PompejskaNovena")
         container.loadPersistentStores { _, error in

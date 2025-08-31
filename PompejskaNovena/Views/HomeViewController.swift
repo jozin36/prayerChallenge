@@ -68,7 +68,8 @@ class HomeViewController: UIViewController {
                 noteLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
                 noteLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
                 noteLabel.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
-
+                
+                restartButton.heightAnchor.constraint(equalToConstant: 50),
                 restartButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
                 restartButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
                 restartButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
@@ -116,7 +117,7 @@ class HomeViewController: UIViewController {
         let progress = viewModel.currentProgress()
         progressView.progress = progress
         
-        restartButton.isHidden = (progress.missedExercises <= 0)
+        restartButton.isHidden = (progress.missedExercises <= 0 && !progress.isComplete)
     }
     
     @objc private func didPushButton() {

@@ -5,6 +5,7 @@
 //  Created by Jozef Pazúrik on 28/07/2025.
 //
 import UIKit
+import CoreData
 
 class SettingsViewController: UIViewController {
 
@@ -16,6 +17,7 @@ class SettingsViewController: UIViewController {
     private var timeButtons: [UIButton] = []
     private var reminderStack = UIStackView()
     private var toggleButtons: [UISwitch] = []
+    private var restartButton = UIButton()
     private var reminderTimes: [Date] = {
         let stored = UserDefaults.standard.array(forKey: "reminderTimes") as? [Double]
             
@@ -136,9 +138,26 @@ class SettingsViewController: UIViewController {
         
         stackView.addArrangedSubview(UIView())
         stackView.addArrangedSubview(remaindersContainer)
+        
+        restartButton.backgroundColor = UIColor(cgColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0.1))
+        restartButton.translatesAutoresizingMaskIntoConstraints = false
+        restartButton.layer.cornerRadius = 7
+        restartButton.setTitle("Resetovať aplikáciu", for: .normal)
+        restartButton.setTitleColor(.label, for: .normal)
+        restartButton.setTitleColor(.systemGray, for: .selected)
+        restartButton.addTarget(self, action: #selector(self.resetButtonTapped), for: .touchUpInside)
+        view.addSubview(restartButton)
+        
+        view.addSubview(restartButton)
+        
         view.addSubview(stackView)
         
         NSLayoutConstraint.activate([
+            restartButton.heightAnchor.constraint(equalToConstant: 50),
+            restartButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            restartButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            restartButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            
             stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24)
@@ -160,6 +179,15 @@ class SettingsViewController: UIViewController {
         } else {
             UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         }
+    }
+    
+    @objc func resetButtonTapped() {
+        let alert = UIAlertController(title: "Naozaj chcete resetovať aplikáciu", message: "Táto akcia resetuje aplikáciu do pôvodného stavu a odstráni všetky užívateľské dáta.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Zrušiť", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Resetovať", style: .destructive) { _ in
+            self.resetApp()
+        })
+        present(alert, animated: true)
     }
     
     private func saveReminderTimes() {
@@ -248,5 +276,32 @@ class SettingsViewController: UIViewController {
                 }
             }
         }
+    }
+    
+    func clearUserDefaults() {
+        let defaults = UserDefaults.standard
+        for key in defaults.dictionaryRepresentation().keys {
+            defaults.removeObject(forKey: key)
+        }
+    }
+    
+    func resetApp() {
+        clearUserDefaults()
+        CoreDataManager.shared.resetCoreData()
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        
+
+        // Optional: Restart app or show onboarding again
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        NotificationCenter.default.post(name: Notification.Name("didResetApp"), object: nil)
+        }
+        
+        let window = UIApplication.shared.connectedScenes
+            .compactMap { ($0 as? UIWindowScene)?.keyWindow }
+            .first
+
+        let context = CoreDataManager.shared.context
+        let appCoordinator = AppCoordinator(window: window!, context: context)
+        appCoordinator.start()
     }
 }

@@ -238,7 +238,7 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
         FAQItem(
             question: "Čo ak som sa nestihol pomodliť niektorý z ružencov v daný deň?",
             answer: """
-                    Pokiaľ sa vám stane, že ste sa nestihli pomodliť všetky ružence za daný deň, nič strašné sa nestalo, len je potrebné sa ich nasledujúci deň domodliť (okrem tých, ktoré už máte na daný deň), tak aby boli pomodlené všetky. V prípade že takýmto spôsobom sa vám ružence po čase nabalia a mustíe "dobiehať" veľa ružencov naraz, odporúčame začať sa modliť novénu odzačiatku. Všeobecne by malo platiť, že za celých 54 dní sa pomodlíte každý deň aspoň jeden ruženec. Pokiaľ sa vám stane. že sa vám nepodarí v niektorý deň pomodliť sa ani jeden ruženec, je potrebné začať novénu odznovu.
+                    Pokiaľ sa vám stane, že ste sa nestihli pomodliť všetky ružence za daný deň, je potrebné sa ich nasledujúci deň domodliť (okrem tých, ktoré už máte na daný deň), tak aby boli pomodlené všetky. V prípade, že takýmto spôsobom sa vám ružence po čase nabalia a mustíe "dobiehať" príliš veľa ružencov naraz, odporúčame začať sa modliť novénu odzačiatku. Všeobecne by malo platiť, že za celých 54 dní sa pomodlíte každý deň aspoň jeden ruženec. Pokiaľ sa vám stane. že sa vám nepodarí v niektorý deň pomodliť sa ani jeden ruženec, je potrebné začať novénu odznovu.
                     """
         ),
     ]

@@ -16,6 +16,7 @@ class ProgressView: UIView {
     private let daysLabel = UILabel()
     private let completedLabel = UILabel()
     private let missedLabel = UILabel()
+    private let midpointMarker = UIView()
     
     private var progressConstraint: NSLayoutConstraint!
     
@@ -79,6 +80,10 @@ class ProgressView: UIView {
         containerView.addSubview(progressBar)
         addSubview(percentageLabel)
         
+        midpointMarker.translatesAutoresizingMaskIntoConstraints = false
+        midpointMarker.backgroundColor = .systemGray  // Or any color you'd like
+        containerView.addSubview(midpointMarker)
+        
         NSLayoutConstraint.activate([
             containerView.topAnchor.constraint(equalTo: topAnchor),
             containerView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -106,6 +111,21 @@ class ProgressView: UIView {
         progressConstraint.isActive = true
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // Remove any existing constraints on midpointMarker
+        midpointMarker.constraints.forEach { midpointMarker.removeConstraint($0) }
+        midpointMarker.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            midpointMarker.widthAnchor.constraint(equalToConstant: 2),
+            midpointMarker.heightAnchor.constraint(equalTo: containerView.heightAnchor, multiplier: 1.2),
+            midpointMarker.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
+            midpointMarker.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: containerView.frame.width * 0.5)
+        ])
+    }
+    
     private func getLocalizedString(_ number: Int)-> String{
         if (number == 1) {
             return "ruženec"
@@ -124,6 +144,12 @@ class ProgressView: UIView {
         percentageLabel.text = "\(Int(progress.percentage * 100))% hotovo"
         completedLabel.text = "Pomodlené \(progress.completed) \(getLocalizedString(progress.completed))"
         daysLabel.text = "\(Int(progress.passedDays + 1)) deň novény z \(progress.totalDays)"
+        
+        if (progress.passedDays <= progress.totalDays) {
+            daysLabel.text?.append(" - prosebná časť")
+        } else {
+            daysLabel.text?.append(" - ďakovná časť")
+        }
         
         missedLabel.text = "Meškáš \(progress.missedExercises) "
         missedLabel.text?.append(getLocalizedString(progress.missedExercises))

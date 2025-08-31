@@ -164,7 +164,7 @@ class AboutViewController: UIViewController {
         ])
     }
     
-    private func makeMutableHeading(from text: String, size: Int = 18)-> NSMutableAttributedString {
+    private func makeMutableHeading(from text: String, size: Int = 20)-> NSMutableAttributedString {
         return NSMutableAttributedString(
             string: "\n\(text)\n\n",
             attributes: [
@@ -174,7 +174,7 @@ class AboutViewController: UIViewController {
         )
     }
     
-    private func makeHeading(from text: String, size: Int = 18)-> NSAttributedString {
+    private func makeHeading(from text: String, size: Int = 20)-> NSAttributedString {
         return NSAttributedString(
             string: "\n\n\(text)\n\n",
             attributes: [
@@ -188,7 +188,7 @@ class AboutViewController: UIViewController {
         return NSAttributedString(
             string: text,
             attributes: [
-                .font: UIFont.systemFont(ofSize: CGFloat(14)),
+                .font: UIFont.systemFont(ofSize: CGFloat(16)),
             ]
         )
     }
