@@ -15,7 +15,7 @@ class ColorProvider {
                 case .dark:
                     return UIColor(red: 30/255, green: 30/255, blue: 40/255, alpha: 1.0) // Dark mode color
                 default:
-                    return UIColor(red: 153.0/225, green: 153.0/255, blue: 255.0/255, alpha: 1.0) // Light mode color
+                    return UIColor(red: 128/225, green: 159/255, blue: 255.0/255, alpha: 1.0) // Light mode color
                 }
             }
         }
@@ -59,7 +59,29 @@ class ColorProvider {
             case .dark:
                 return UIColor.systemGray2
             default:
-                return UIColor.systemGray
+                return UIColor.black.withAlphaComponent(0.3)
+            }
+        }
+    }
+    
+    var secondHalfProgressBarColor: UIColor {
+        return UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 255/255, green: 191/255, blue: 0/255, alpha: 1.0) // Dark mode color
+            default:
+                return UIColor(red: 0/255, green: 115/255, blue: 230/255, alpha: 1.0)
+            }
+        }
+    }
+    
+    var firstHalfProgressBarColor: UIColor {
+        return UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor.systemGreen
+            default:
+                return UIColor(red: 0/255, green: 0/255, blue: 153/255, alpha: 1.0) // Dark mode color
             }
         }
     }

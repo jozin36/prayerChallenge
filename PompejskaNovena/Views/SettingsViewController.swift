@@ -69,7 +69,7 @@ class SettingsViewController: UIViewController {
 
         for (index, button) in timeButtons.enumerated() {
             let icon = UIImageView(image: UIImage(systemName: "clock"))
-            icon.tintColor = .systemGray
+            icon.tintColor = ColorProvider.shared.tabBarTintColor
             icon.translatesAutoresizingMaskIntoConstraints = false
             icon.widthAnchor.constraint(equalToConstant: 30).isActive = true
             icon.heightAnchor.constraint(equalToConstant: 30).isActive = true
@@ -84,6 +84,7 @@ class SettingsViewController: UIViewController {
             toggleSwitch.addTarget(self, action: #selector(didSwitchRemainder), for: .valueChanged)
             
             toggleSwitch.isOn = toggleButtonsState != nil ? toggleButtonsState![index] : false
+            toggleSwitch.onTintColor = ColorProvider.shared.firstHalfProgressBarColor
 
             let row = UIStackView(arrangedSubviews: [icon, button, toggleSwitch])
             row.axis = .horizontal
@@ -115,6 +116,7 @@ class SettingsViewController: UIViewController {
         notificationSwitch.addTarget(self, action: #selector(didToggleSwitch), for: .valueChanged)
         let isOn = UserDefaults.standard.bool(forKey: "notificationsEnabled")
         notificationSwitch.isOn = isOn
+        notificationSwitch.onTintColor = ColorProvider.shared.firstHalfProgressBarColor
         
         for index in 0..<3 {
             let button = UIButton(type: .system)

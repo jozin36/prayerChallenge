@@ -92,6 +92,8 @@ final class ExerciseModalViewController: UIViewController {
             self?.viewModel.save()
             self?.onSave?()
         }), for: .valueChanged)
+        
+        toggle.onTintColor = ColorProvider.shared.firstHalfProgressBarColor
 
         let row = UIStackView(arrangedSubviews: [label, toggle])
         row.axis = .horizontal

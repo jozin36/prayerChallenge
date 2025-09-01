@@ -145,9 +145,11 @@ class ProgressView: UIView {
         completedLabel.text = "Pomodlené \(progress.completed) \(getLocalizedString(progress.completed))"
         daysLabel.text = "\(Int(progress.passedDays + 1)) deň novény z \(progress.totalDays)"
         
-        if (progress.passedDays <= progress.totalDays) {
+        if (progress.percentage <= 0.5) {
+            progressBar.backgroundColor = ColorProvider.shared.firstHalfProgressBarColor
             daysLabel.text?.append(" - prosebná časť")
         } else {
+            progressBar.backgroundColor = ColorProvider.shared.secondHalfProgressBarColor
             daysLabel.text?.append(" - ďakovná časť")
         }
         

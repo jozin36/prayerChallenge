@@ -36,7 +36,7 @@ class CalendarViewModel {
             
             for _ in 0..<count {
                 let check = UIImageView(image: UIImage(systemName: "checkmark.circle.fill"))
-                check.tintColor = .systemGreen
+                check.tintColor = ColorProvider.shared.firstHalfProgressBarColor
                 check.translatesAutoresizingMaskIntoConstraints = false
                 NSLayoutConstraint.activate([
                     check.widthAnchor.constraint(equalToConstant: 13),
