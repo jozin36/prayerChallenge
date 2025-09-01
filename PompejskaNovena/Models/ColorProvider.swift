@@ -4,6 +4,7 @@
 //
 //  Created by Jozef Pazúrik on 28/07/2025.
 //
+
 import UIKit
 
 class ColorProvider {
