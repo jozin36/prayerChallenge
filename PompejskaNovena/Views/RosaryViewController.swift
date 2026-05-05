@@ -16,11 +16,15 @@ struct FAQItem {
 class FAQCardCell: UITableViewCell {
 
     private let container = UIView()
+    private let headerContainer = UIView()
+    private let answerContainer = UIView()
     private let questionLabel = UILabel()
     private let answerLabel = UILabel()
     private let chevron = UIImageView()
-    private let stack = UIStackView()
-    private var answerHeightConstraint: NSLayoutConstraint!
+    private let headerRow = UIStackView()
+    private var answerTopConstraint: NSLayoutConstraint!
+    private var answerBottomConstraint: NSLayoutConstraint!
+    private var collapsedBottomConstraint: NSLayoutConstraint!
 
     private var isExpanded = false
 
@@ -40,62 +44,88 @@ class FAQCardCell: UITableViewCell {
     }
     
     private func applyCurrentTextSize() {
-        questionLabel.font = FontProvider.shared.font(weight: .semibold)
-        answerLabel.font = FontProvider.shared.font()
+        questionLabel.font = .systemFont(ofSize: 17, weight: .semibold)
+        answerLabel.font = AppDesign.Font.body()
     }
 
     private func setupUI() {
         backgroundColor = .clear
+        contentView.backgroundColor = .clear
         container.translatesAutoresizingMaskIntoConstraints = false
-        
-        container.backgroundColor = ColorProvider.shared.grouppedBackroundColor
-        container.layer.cornerRadius = 12
 
-        questionLabel.font = FontProvider.shared.font(weight: .bold)
+        container.backgroundColor = ColorProvider.shared.elevatedSurfaceColour
+        container.layer.cornerRadius = AppDesign.Radius.small
+        container.layer.cornerCurve = .continuous
+        container.layer.borderWidth = 0
+        container.layer.shadowOpacity = 0
+
+        questionLabel.font = .systemFont(ofSize: 17, weight: .semibold)
+        questionLabel.textColor = .label
         questionLabel.numberOfLines = 0
         questionLabel.setContentHuggingPriority(.defaultLow, for: .vertical)
+        questionLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
-        answerLabel.font = FontProvider.shared.font()
+        answerLabel.font = AppDesign.Font.body()
         answerLabel.numberOfLines = 0
-        answerLabel.textColor = UIColor.label.withAlphaComponent(0.8)
+        answerLabel.textColor = ColorProvider.shared.mutedTextColour
+        answerLabel.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
-        chevron.image = UIImage(systemName: "chevron.down")
-        chevron.tintColor = .gray
+        chevron.image = UIImage(systemName: "triangle.fill")
+        chevron.tintColor = ColorProvider.shared.primaryColour
         chevron.translatesAutoresizingMaskIntoConstraints = false
 
-        let topRow = UIStackView(arrangedSubviews: [questionLabel, chevron])
-        topRow.axis = .horizontal
-        topRow.spacing = 8
-        topRow.alignment = .center
+        headerRow.axis = .horizontal
+        headerRow.spacing = 8
+        headerRow.alignment = .center
+        headerRow.translatesAutoresizingMaskIntoConstraints = false
+        headerRow.addArrangedSubview(questionLabel)
+        headerRow.addArrangedSubview(chevron)
 
-        stack.addArrangedSubview(topRow)
-        stack.addArrangedSubview(answerLabel)
-        
-        stack.axis = .vertical
-        stack.spacing = 8
-        stack.translatesAutoresizingMaskIntoConstraints = false
+        headerContainer.translatesAutoresizingMaskIntoConstraints = false
+        headerContainer.addSubview(headerRow)
 
-        container.addSubview(stack)
+        answerContainer.translatesAutoresizingMaskIntoConstraints = false
+        answerContainer.clipsToBounds = true
+        answerContainer.addSubview(answerLabel)
+
+        container.addSubview(headerContainer)
+        container.addSubview(answerContainer)
         contentView.addSubview(container)
-        
+
         answerLabel.translatesAutoresizingMaskIntoConstraints = false
-        answerHeightConstraint = answerLabel.heightAnchor.constraint(equalToConstant: 0)
-        answerHeightConstraint.isActive = false // only when collapsed
 
         NSLayoutConstraint.activate([
-            container.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            container.topAnchor.constraint(equalTo: contentView.topAnchor, constant: AppDesign.Spacing.sm),
+            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -AppDesign.Spacing.sm),
             container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0),
             container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
 
-            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 15),
-            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -10),
-            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 15),
-            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -15),
+            headerContainer.topAnchor.constraint(equalTo: container.topAnchor, constant: AppDesign.Spacing.md),
+            headerContainer.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: AppDesign.Spacing.md),
+            headerContainer.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -AppDesign.Spacing.md),
 
-            chevron.widthAnchor.constraint(equalToConstant: 18),
-            chevron.heightAnchor.constraint(greaterThanOrEqualToConstant: 18),
+            headerRow.topAnchor.constraint(equalTo: headerContainer.topAnchor),
+            headerRow.bottomAnchor.constraint(equalTo: headerContainer.bottomAnchor),
+            headerRow.leadingAnchor.constraint(equalTo: headerContainer.leadingAnchor),
+            headerRow.trailingAnchor.constraint(equalTo: headerContainer.trailingAnchor),
+
+            answerContainer.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: AppDesign.Spacing.md),
+            answerContainer.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -AppDesign.Spacing.md),
+
+            answerLabel.topAnchor.constraint(equalTo: answerContainer.topAnchor),
+            answerLabel.bottomAnchor.constraint(equalTo: answerContainer.bottomAnchor),
+            answerLabel.leadingAnchor.constraint(equalTo: answerContainer.leadingAnchor),
+            answerLabel.trailingAnchor.constraint(equalTo: answerContainer.trailingAnchor),
+
+            chevron.widthAnchor.constraint(equalToConstant: 14),
+            chevron.heightAnchor.constraint(equalToConstant: 14),
         ])
+
+        answerTopConstraint = answerContainer.topAnchor.constraint(equalTo: headerContainer.bottomAnchor, constant: AppDesign.Spacing.md)
+        answerBottomConstraint = answerContainer.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -AppDesign.Spacing.md)
+        collapsedBottomConstraint = headerContainer.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -AppDesign.Spacing.md)
+
+        collapsedBottomConstraint.isActive = true
     }
 
     func configure(with item: FAQItem, animated: Bool = false) {
@@ -103,20 +133,43 @@ class FAQCardCell: UITableViewCell {
         answerLabel.text = item.answer
         isExpanded = item.isExpanded
         applyCurrentTextSize()
-        
-        self.answerHeightConstraint.isActive = !self.isExpanded
+
+        if item.isExpanded {
+            collapsedBottomConstraint.isActive = false
+            answerTopConstraint.isActive = true
+            answerBottomConstraint.isActive = true
+        } else {
+            answerTopConstraint.isActive = false
+            answerBottomConstraint.isActive = false
+            collapsedBottomConstraint.isActive = true
+        }
 
         if animated {
-            UIView.animate(withDuration: 0.5) {
-                self.chevron.transform = item.isExpanded ? CGAffineTransform(rotationAngle: .pi) : .identity
-                self.answerLabel.isHidden = false
+            if item.isExpanded {
+                answerContainer.isHidden = false
+                answerLabel.alpha = 0
+            } else {
+                answerLabel.alpha = 0
+                answerContainer.isHidden = false
+            }
+
+            UIView.animate(withDuration: 0.25) {
+                self.chevron.transform = item.isExpanded ? .identity : CGAffineTransform(rotationAngle: .pi)
                 self.answerLabel.alpha = item.isExpanded ? 1 : 0
+                self.contentView.layoutIfNeeded()
+            }
+
+            if !item.isExpanded {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    guard !self.isExpanded else { return }
+                    self.answerContainer.isHidden = true
+                }
             }
         } else {
             // reset transform immediately to avoid reuse bugs
-            chevron.transform = item.isExpanded ? CGAffineTransform(rotationAngle: .pi) : .identity
+            chevron.transform = item.isExpanded ? .identity : CGAffineTransform(rotationAngle: .pi)
             answerLabel.alpha = isExpanded ? 1 : 0
-            answerLabel.isHidden = false
+            answerContainer.isHidden = !isExpanded
         }
     }
 }
@@ -124,7 +177,6 @@ class FAQCardCell: UITableViewCell {
 class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     private let tableView = UITableView()
-    private var lastTappedIndexPath: IndexPath?
     
     private var faqItems: [FAQItem] = [
         FAQItem(
@@ -257,9 +309,8 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let contentView = UIStackView()
-        contentView.axis = .vertical
-        contentView.spacing = 10
+        view.backgroundColor = ColorProvider.shared.backgroundColour
+        title = "Ruženec"
         
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
@@ -267,17 +318,25 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tableView.register(FAQCardCell.self, forCellReuseIdentifier: "FAQCardCell")
         tableView.separatorStyle = .none
         tableView.backgroundColor = .clear
+        tableView.contentInset = UIEdgeInsets(
+            top: 0,
+            left: 0,
+            bottom: AppDesign.Spacing.lg,
+            right: 0
+        )
         
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
+        tableView.tableHeaderView = makeHeaderView()
+        tableView.tableFooterView = makeFooterView()
 
         view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: AppDesign.Spacing.lg),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -AppDesign.Spacing.lg)
         ])
 
         NotificationCenter.default.addObserver(
@@ -286,8 +345,109 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
             name: .didChangeTextSize,
             object: nil
         )
-        
-        view.addSubview(tableView)
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        resizeTableSupplementaryViews()
+    }
+
+    private func makeHeaderView() -> UIView {
+        let titleLabel = UILabel()
+        titleLabel.text = "Svätý ruženec"
+        titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
+        titleLabel.textColor = .label
+        titleLabel.numberOfLines = 0
+
+        let descriptionLabel = UILabel()
+        descriptionLabel.text = "Ruženec je mocná modlitba, ktorá spája ústnu modlitbu a rozjímanie nad tajomstvami našej viery."
+        descriptionLabel.font = AppDesign.Font.body()
+        descriptionLabel.textColor = ColorProvider.shared.mutedTextColour
+        descriptionLabel.numberOfLines = 0
+
+        let stack = UIStackView(arrangedSubviews: [titleLabel, descriptionLabel])
+        stack.axis = .vertical
+        stack.spacing = AppDesign.Spacing.md
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        let headerView = UIView()
+        headerView.backgroundColor = .clear
+        headerView.addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: headerView.topAnchor, constant: AppDesign.Spacing.lg),
+            stack.leadingAnchor.constraint(equalTo: headerView.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: headerView.trailingAnchor),
+            stack.bottomAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -AppDesign.Spacing.md)
+        ])
+
+        return headerView
+    }
+
+    private func makeFooterView() -> UIView {
+        let card = UIView()
+        card.backgroundColor = ColorProvider.shared.secondaryContainerColour
+        card.layer.cornerRadius = AppDesign.Radius.small
+        card.layer.cornerCurve = .continuous
+        card.translatesAutoresizingMaskIntoConstraints = false
+
+        let titleLabel = UILabel()
+        titleLabel.text = "O 54-dňovej pompejskej novéne"
+        titleLabel.font = .systemFont(ofSize: 17, weight: .semibold)
+        titleLabel.textColor = .label
+        titleLabel.numberOfLines = 0
+
+        let bodyLabel = UILabel()
+        bodyLabel.text = "54-dňová ružencová novéna pozostáva z piatich desiatkov ruženčeka každý deň po dobu 27 dní v prosbe, nasledovaných piatimi desiatkami každý deň po dobu 27 dní v ďakovaní, bez ohľadu na to, či bola prosba vypočutá alebo nie."
+        bodyLabel.font = AppDesign.Font.caption()
+        bodyLabel.textColor = .label
+        bodyLabel.numberOfLines = 0
+
+        let stack = UIStackView(arrangedSubviews: [titleLabel, bodyLabel])
+        stack.axis = .vertical
+        stack.spacing = AppDesign.Spacing.sm
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        card.addSubview(stack)
+
+        let footerView = UIView()
+        footerView.backgroundColor = .clear
+        footerView.addSubview(card)
+
+        NSLayoutConstraint.activate([
+            card.topAnchor.constraint(equalTo: footerView.topAnchor, constant: AppDesign.Spacing.sm),
+            card.leadingAnchor.constraint(equalTo: footerView.leadingAnchor),
+            card.trailingAnchor.constraint(equalTo: footerView.trailingAnchor),
+            card.bottomAnchor.constraint(equalTo: footerView.bottomAnchor, constant: -AppDesign.Spacing.lg),
+
+            stack.topAnchor.constraint(equalTo: card.topAnchor, constant: AppDesign.Spacing.md),
+            stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: AppDesign.Spacing.md),
+            stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -AppDesign.Spacing.md),
+            stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -AppDesign.Spacing.md)
+        ])
+
+        return footerView
+    }
+
+    private func resizeTableSupplementaryViews() {
+        resizeSupplementaryView(\.tableHeaderView)
+        resizeSupplementaryView(\.tableFooterView)
+    }
+
+    private func resizeSupplementaryView(_ keyPath: ReferenceWritableKeyPath<UITableView, UIView?>) {
+        guard let view = tableView[keyPath: keyPath] else { return }
+
+        let fittingSize = CGSize(width: tableView.bounds.width, height: UIView.layoutFittingCompressedSize.height)
+        let height = view.systemLayoutSizeFitting(
+            fittingSize,
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        ).height
+
+        guard abs(view.frame.height - height) > 0.5 else { return }
+
+        view.frame.size = CGSize(width: tableView.bounds.width, height: height)
+        tableView[keyPath: keyPath] = view
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -295,18 +455,33 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        lastTappedIndexPath = indexPath
+        let previouslyExpandedIndex = faqItems.firstIndex { $0.isExpanded }
+        let shouldExpandTappedItem = !faqItems[indexPath.row].isExpanded
         
         for i in 0..<faqItems.count {
-            faqItems[i].isExpanded = (i == indexPath.row) ? !faqItems[i].isExpanded : false
+            faqItems[i].isExpanded = i == indexPath.row && shouldExpandTappedItem
         }
-        tableView.reloadData()
+
+        var affectedIndexPaths = [indexPath]
+        if let previouslyExpandedIndex, previouslyExpandedIndex != indexPath.row {
+            affectedIndexPaths.append(IndexPath(row: previouslyExpandedIndex, section: indexPath.section))
+        }
+
+        affectedIndexPaths.forEach { affectedIndexPath in
+            guard let cell = tableView.cellForRow(at: affectedIndexPath) as? FAQCardCell else { return }
+            cell.configure(with: faqItems[affectedIndexPath.row], animated: false)
+        }
+
+        UIView.performWithoutAnimation {
+            tableView.beginUpdates()
+            tableView.endUpdates()
+        }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = faqItems[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "FAQCardCell", for: indexPath) as! FAQCardCell
-        cell.configure(with: item, animated: indexPath == lastTappedIndexPath)
+        cell.configure(with: item)
         cell.selectionStyle = .none
         return cell
     }

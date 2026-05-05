@@ -70,7 +70,6 @@ final class NewChallengeViewController: UIViewController {
         placeholderLabel.textColor = .placeholderText
         placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
         mottoView.addSubview(placeholderLabel)
-        addDoneToolbar(to: mottoView)
         
         alertLabel.text = "Ak začnete znovu, všetky uložené dáta a história z predošlej novény sa vymažú!"
         alertLabel.textColor = .systemRed
@@ -167,17 +166,6 @@ final class NewChallengeViewController: UIViewController {
         }
     }
     
-    func addDoneToolbar(to textView: UITextView) {
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        
-        let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let done = UIBarButtonItem(title: "Hotovo", style: .done, target: self, action: #selector(dismissKeyboard))
-        
-        toolbar.setItems([flex, done], animated: false)
-        textView.inputAccessoryView = toolbar
-    }
-
     @objc private func startTapped() {
         viewModel.name = "Pompejská Novéna"
         viewModel.note = mottoView.text ?? ""
