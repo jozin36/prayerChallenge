@@ -15,17 +15,17 @@ enum AppTheme: String, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .system: return "System"
-        case .light: return "Light"
-        case .dark: return "Dark"
+            case .system: return "Automaticky"
+            case .light: return "Svetlý"
+            case .dark: return "Tmavý"
         }
     }
 
     var interfaceStyle: UIUserInterfaceStyle {
         switch self {
-        case .system: return .unspecified
-        case .light: return .light
-        case .dark: return .dark
+            case .system: return .unspecified
+            case .light: return .light
+            case .dark: return .dark
         }
     }
 }

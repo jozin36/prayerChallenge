@@ -30,22 +30,32 @@ class FAQCardCell: UITableViewCell {
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: coder)
+        setupUI()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        NotificationCenter.default.removeObserver(self, name: .didChangeTextSize, object: nil)
+    }
+    
+    private func applyCurrentTextSize() {
+        questionLabel.font = FontProvider.shared.font(weight: .semibold)
+        answerLabel.font = FontProvider.shared.font()
     }
 
     private func setupUI() {
         backgroundColor = .clear
-        
         container.translatesAutoresizingMaskIntoConstraints = false
         
         container.backgroundColor = ColorProvider.shared.grouppedBackroundColor
         container.layer.cornerRadius = 12
 
-        questionLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        questionLabel.font = FontProvider.shared.font(weight: .bold)
         questionLabel.numberOfLines = 0
         questionLabel.setContentHuggingPriority(.defaultLow, for: .vertical)
 
-        answerLabel.font = .systemFont(ofSize: 15)
+        answerLabel.font = FontProvider.shared.font()
         answerLabel.numberOfLines = 0
         answerLabel.textColor = UIColor.label.withAlphaComponent(0.8)
 
@@ -92,6 +102,7 @@ class FAQCardCell: UITableViewCell {
         questionLabel.text = item.question
         answerLabel.text = item.answer
         isExpanded = item.isExpanded
+        applyCurrentTextSize()
         
         self.answerHeightConstraint.isActive = !self.isExpanded
 
@@ -261,12 +272,20 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tableView.estimatedRowHeight = 60
 
         view.addSubview(tableView)
+        
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleTextSizeChange),
+            name: .didChangeTextSize,
+            object: nil
+        )
         
         view.addSubview(tableView)
     }
@@ -290,5 +309,9 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
         cell.configure(with: item, animated: indexPath == lastTappedIndexPath)
         cell.selectionStyle = .none
         return cell
+    }
+    
+    @objc private func handleTextSizeChange() {
+        tableView.reloadData()
     }
 }

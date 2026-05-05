@@ -4,6 +4,7 @@
 //
 //  Created by Jozef Pazúrik on 28/07/2025.
 //
+
 import UIKit
 import CoreData
 
@@ -18,6 +19,24 @@ class SettingsViewController: UIViewController {
     private var reminderStack = UIStackView()
     private var toggleButtons: [UISwitch] = []
     private var restartButton = UIButton()
+    private var textSizeNoteLabel = UILabel()
+    
+    private var themeSegment: UISegmentedControl = {
+        let items = AppTheme.allCases.map { $0.displayName }
+        let control = UISegmentedControl(items: items)
+        control.selectedSegmentIndex = AppTheme.allCases.firstIndex(of: ThemeManager.shared.currentTheme) ?? 0
+        control.translatesAutoresizingMaskIntoConstraints = false
+        return control
+    }()
+    
+    private let textSizeSegment: UISegmentedControl = {
+        let items = TextSize.allCases.map { $0.displayName }
+        let control = UISegmentedControl(items: items)
+        control.selectedSegmentIndex = TextSize.allCases.firstIndex(of: FontProvider.shared.currentSize) ?? 1
+        control.translatesAutoresizingMaskIntoConstraints = false
+        return control
+    }()
+    
     private var reminderTimes: [Date] = {
         let stored = UserDefaults.standard.array(forKey: "reminderTimes") as? [Double]
             
@@ -113,7 +132,10 @@ class SettingsViewController: UIViewController {
         switchRow.axis = .horizontal
         switchRow.distribution = .equalSpacing
         
+        themeSegment.addTarget(self, action: #selector(themeSegmentChanged(_:)), for: .valueChanged)
         notificationSwitch.addTarget(self, action: #selector(didToggleSwitch), for: .valueChanged)
+        textSizeSegment.addTarget(self, action: #selector(textSizeChanged(_:)), for: .valueChanged)
+        
         let isOn = UserDefaults.standard.bool(forKey: "notificationsEnabled")
         notificationSwitch.isOn = isOn
         notificationSwitch.onTintColor = ColorProvider.shared.firstHalfProgressBarColor
@@ -140,6 +162,25 @@ class SettingsViewController: UIViewController {
         
         stackView.addArrangedSubview(UIView())
         stackView.addArrangedSubview(remaindersContainer)
+        
+        stackView.addArrangedSubview(UIView())
+        let themeLabel = UILabel()
+        themeLabel.text = "Farebný režim (téma):"
+        stackView.addArrangedSubview(themeLabel)
+        stackView.addArrangedSubview(themeSegment)
+        
+        stackView.addArrangedSubview(UIView())
+        let textSizeLabel = UILabel()
+        textSizeLabel.text = "Veľkosť písma:"
+        
+        
+        textSizeNoteLabel.text = "Nastavenie pre veľkosť textu na obrazovke s tajomstavmi ruženca a info stránky."
+        textSizeNoteLabel.numberOfLines = 0
+        textSizeNoteLabel.font = FontProvider.shared.font()
+        
+        stackView.addArrangedSubview(textSizeLabel)
+        stackView.addArrangedSubview(textSizeSegment)
+        stackView.addArrangedSubview(textSizeNoteLabel)
         
         restartButton.backgroundColor = UIColor(cgColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0.1))
         restartButton.translatesAutoresizingMaskIntoConstraints = false
@@ -244,6 +285,20 @@ class SettingsViewController: UIViewController {
         }))
         
         present(alert, animated: true)
+    }
+    
+    @objc func themeSegmentChanged(_ sender: UISegmentedControl) {
+        let selectedTheme = AppTheme.allCases[sender.selectedSegmentIndex]
+        ThemeManager.shared.currentTheme = selectedTheme
+    }
+    
+    @objc func textSizeChanged(_ sender: UISegmentedControl) {
+        let selected = TextSize.allCases[safe: sender.selectedSegmentIndex] ?? .medium
+        FontProvider.shared.currentSize = selected
+        textSizeNoteLabel.font = FontProvider.shared.font()
+
+        // Optional: notify app to refresh
+        NotificationCenter.default.post(name: .didChangeTextSize, object: nil)
     }
 
     private func timeString(for date: Date) -> String {

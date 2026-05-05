@@ -26,7 +26,7 @@ final class AppCoordinator {
         let controller = UINavigationController(rootViewController: AboutViewController())
         
         controller.tabBarItem.image = UIImage(systemName: "info.circle")
-        controller.title = "Info"
+        controller.title = "O aplikácii"
         
         return controller
     }()
@@ -39,6 +39,7 @@ final class AppCoordinator {
     func start() {
         self.mainTabBarController = MainViewController()
         let tabBar = mainTabBarController
+        configureNavigationAppearance()
         
         // Create navigation controllers for each tab
         let calendarNav = UINavigationController()
@@ -69,6 +70,26 @@ final class AppCoordinator {
 
         window.rootViewController = tabBar
         window.makeKeyAndVisible()
+    }
+
+    private func configureNavigationAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = ColorProvider.shared.backgroundColour
+        appearance.shadowColor = .clear
+        appearance.titleTextAttributes = [
+            .foregroundColor: UIColor.label,
+            .font: AppDesign.Font.headline()
+        ]
+        appearance.largeTitleTextAttributes = [
+            .foregroundColor: UIColor.label,
+            .font: AppDesign.Font.hero()
+        ]
+
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        UINavigationBar.appearance().tintColor = ColorProvider.shared.primaryColour
     }
     
 }

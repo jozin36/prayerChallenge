@@ -45,34 +45,39 @@ class ProgressView: UIView {
     }
     
     private func setupUI() {
-        containerView.backgroundColor = .systemGray5
-        containerView.layer.cornerRadius = 10
+        backgroundColor = .clear
+
+        containerView.backgroundColor = ColorProvider.shared.secondaryButtonColour
+        containerView.layer.cornerRadius = AppDesign.Radius.small
+        containerView.layer.cornerCurve = .continuous
         containerView.clipsToBounds = true
         containerView.translatesAutoresizingMaskIntoConstraints = false
         
-        progressBar.backgroundColor = .systemGreen
-        progressBar.layer.cornerRadius = 10
+        progressBar.backgroundColor = ColorProvider.shared.firstHalfProgressBarColor
+        progressBar.layer.cornerRadius = AppDesign.Radius.small
+        progressBar.layer.cornerCurve = .continuous
         progressBar.translatesAutoresizingMaskIntoConstraints = false
 
-        percentageLabel.font = .systemFont(ofSize: 18, weight: .medium)
-        percentageLabel.textColor = .secondaryLabel
+        percentageLabel.font = AppDesign.Font.title()
+        percentageLabel.textColor = .label
         percentageLabel.textAlignment = .center
         percentageLabel.translatesAutoresizingMaskIntoConstraints = false
         
         daysLabel.translatesAutoresizingMaskIntoConstraints = false
-        daysLabel.font = .systemFont(ofSize: 18, weight: .medium)
+        daysLabel.font = AppDesign.Font.caption()
         daysLabel.textAlignment = .center
-        daysLabel.textColor = .label
+        daysLabel.textColor = ColorProvider.shared.mutedTextColour
         addSubview(daysLabel)
         
         missedLabel.translatesAutoresizingMaskIntoConstraints = false
-        missedLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        missedLabel.font = AppDesign.Font.caption()
         missedLabel.textAlignment = .center
         missedLabel.textColor = .systemRed
         addSubview(missedLabel)
         
-        completedLabel.textColor = .label
-        completedLabel.font = UIFont(name: "Arial", size: 16)
+        completedLabel.textColor = ColorProvider.shared.mutedTextColour
+        completedLabel.font = AppDesign.Font.body()
+        completedLabel.textAlignment = .center
         completedLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(completedLabel)
         
@@ -81,30 +86,33 @@ class ProgressView: UIView {
         addSubview(percentageLabel)
         
         midpointMarker.translatesAutoresizingMaskIntoConstraints = false
-        midpointMarker.backgroundColor = .systemGray  // Or any color you'd like
+        midpointMarker.backgroundColor = ColorProvider.shared.strokeColour
         containerView.addSubview(midpointMarker)
         
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: topAnchor),
+            daysLabel.topAnchor.constraint(equalTo: topAnchor),
+            daysLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+
+            percentageLabel.topAnchor.constraint(equalTo: daysLabel.bottomAnchor, constant: AppDesign.Spacing.xs),
+            percentageLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+
+            containerView.topAnchor.constraint(equalTo: percentageLabel.bottomAnchor, constant: AppDesign.Spacing.md),
             containerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            containerView.heightAnchor.constraint(equalToConstant: 20),
+            containerView.heightAnchor.constraint(equalToConstant: 18),
             
             progressBar.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             progressBar.topAnchor.constraint(equalTo: containerView.topAnchor),
             progressBar.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
             
-            percentageLabel.bottomAnchor.constraint(equalTo: containerView.topAnchor, constant: -10),
-            percentageLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            
-            completedLabel.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 10),
+            completedLabel.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: AppDesign.Spacing.md),
             completedLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            completedLabel.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor),
+            completedLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor),
             
-            daysLabel.bottomAnchor.constraint(equalTo: containerView.topAnchor, constant: -35),
-            daysLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            
-            missedLabel.topAnchor.constraint(equalTo: completedLabel.bottomAnchor, constant: 10),
+            missedLabel.topAnchor.constraint(equalTo: completedLabel.bottomAnchor, constant: AppDesign.Spacing.xs),
             missedLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            missedLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
         progressConstraint = progressBar.widthAnchor.constraint(equalToConstant: 0)

@@ -11,7 +11,20 @@ class AboutViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(setupUI),
+            name: .didChangeTextSize,
+            object: nil
+        )
+        
+        setupUI()
+    }
+    
+    @objc func setupUI(){
+        view.subviews.forEach { $0.removeFromSuperview() }
+        
         let scrollView = UIScrollView()
         let contentView = UIStackView()
         contentView.axis = .vertical
@@ -75,7 +88,7 @@ class AboutViewController: UIViewController {
         """
         attributedText.append(makeParagraph(from: biography1))
         
-        attributedText.append(makeHeading(from: "Na bludných cestách", size: 16))
+        attributedText.append(makeHeading(from: "Na bludných cestách"))
         let biography2 = """
         V roku 1858, po absolvovaní strednej školy, nastúpil Bartolomej Longo na právnickú fakultu univerzity v Neapole, kde získal doktorát a stal sa advokátom. Bolo to búrlivé obdobie v histórii Talianska. Univerzity boli nakazené ateizmom, materializmom a liberalizmom. Mnoho študentov, dokonca aj profesorov, sa zaoberalo špiritizmom a okultizmom. Katolíckym učením sa zjavne opovrhovalo a svoj vplyv výrazne rozširovalo aj slobodomurárstvo. Niektorí profesori priamo vystupovali proti Cirkvi. Študentom odporúčali protináboženskú literatúru. Pod týmto vplyvom sa viera Bartolomeja Longa zrútila.
 
@@ -85,7 +98,7 @@ class AboutViewController: UIViewController {
         """
         attributedText.append(makeParagraph(from: biography2))
         
-        attributedText.append(makeHeading(from: "Milosť obrátenia", size: 16))
+        attributedText.append(makeHeading(from: "Milosť obrátenia"))
         let biography3 = """
         Jedného dňa sa Bartolomejovi Longovi zdalo, že počuje hlas svojho zomrelého otca, ktorý ho povzbudzuje, aby sa vrátil k Bohu a do Cirkvi. Pohnutý týmto zážitkom sa obrátil o pomoc k svojmu dlhoročnému priateľovi, profesorovi Vincentovi Pepemu, ktorý ho poznal ešte z rodného mesta.
 
@@ -99,7 +112,7 @@ class AboutViewController: UIViewController {
         """
         attributedText.append(makeParagraph(from: biography3))
         
-        attributedText.append(makeHeading(from: "Apoštol ruženca", size: 16))
+        attributedText.append(makeHeading(from: "Apoštol ruženca"))
         let biography4 = """
         Ďalším významným bodom v živote mladého právnika bolo stretnutie s bohatou vdovou, kňažnou Mariannou de Fusco. Našiel v nej spriaznenú dušu. Stal sa vychovávateľom jej synov a správcom jej majetku. Boli neoddeliteľnými spoločníkmi v charitatívnej činnosti. Ako správca jej majetku sa dostal do Pompejí. Stretol tam zástupy úbožiakov, analfabetov, ktorí žili v „dierach“ ako pohania, nemorálne a bez poznania najzákladnejších zásad kresťanstva. Zaumienil si priblížiť týchto ľudí k Bohu a predovšetkým naučiť ich modlitbu ruženca. Putoval od chatrče ku chatrči, rozdával úbožiakom ružence, učil ich základné modlitby...
 
@@ -115,7 +128,7 @@ class AboutViewController: UIViewController {
         """
         attributedText.append(makeParagraph(from: biography4))
         
-        attributedText.append(makeHeading(from: "Blahoslavený", size: 16))
+        attributedText.append(makeHeading(from: "Blahoslavený"))
         let biography5 = """
         Bartolomej Longo žil heroický čnostný život. Počas jeho štyridsaťročnej práce na šírení úcty k Panne Márii Ružencovej sa obrátilo mnoho ľudí k Bohu. Bartolomej si však „získal“ aj mnohých nepriateľov, ktorí či už z nevedomosti alebo zo závisti šírili o ňom rôzne nepravdivé a ohováračské reči.
 
@@ -164,31 +177,37 @@ class AboutViewController: UIViewController {
         ])
     }
     
-    private func makeMutableHeading(from text: String, size: Int = 20)-> NSMutableAttributedString {
+    private func makeMutableHeading(from text: String)-> NSMutableAttributedString {
         return NSMutableAttributedString(
             string: "\n\(text)\n\n",
             attributes: [
-                .font: UIFont.boldSystemFont(ofSize: CGFloat(size)),
+                .font: FontProvider.shared.titleFont(),
                 .foregroundColor: UIColor.label
             ]
         )
     }
     
-    private func makeHeading(from text: String, size: Int = 20)-> NSAttributedString {
+    private func makeHeading(from text: String)-> NSAttributedString {
         return NSAttributedString(
             string: "\n\n\(text)\n\n",
             attributes: [
-                .font: UIFont.boldSystemFont(ofSize: CGFloat(size)),
+                .font: FontProvider.shared.title2Font(),
                 .foregroundColor: UIColor.label
             ]
         )
     }
     
     private func makeParagraph(from text: String)-> NSAttributedString {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.hyphenationFactor = 1.0  // Max hyphenation
+        paragraphStyle.lineBreakMode = .byWordWrapping
+        paragraphStyle.alignment = .justified // Optional: makes edges align better too
+        
         return NSAttributedString(
             string: text,
             attributes: [
-                .font: UIFont.systemFont(ofSize: CGFloat(16)),
+                .paragraphStyle: paragraphStyle,
+                .font: FontProvider.shared.font(for: .body)
             ]
         )
     }

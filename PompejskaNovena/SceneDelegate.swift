@@ -29,6 +29,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let appCoordinator = AppCoordinator(window: window, context: context)
         appCoordinator.start()
 
+        ThemeManager.shared.applySavedTheme()
+
         self.window = window
     }
 

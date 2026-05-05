@@ -7,6 +7,22 @@
 import UIKit
 import CoreData
 
+enum CalendarNovenaPhase {
+    case petition
+    case thanksgiving
+}
+
+struct CalendarDayInfo {
+    let dayNumber: Int
+    let date: Date
+    let completedCount: Int
+    let phase: CalendarNovenaPhase
+
+    var isCompleted: Bool {
+        completedCount >= 3
+    }
+}
+
 class CalendarViewModel {
     private let context: NSManagedObjectContext
     public var onRequestDecorationRefresh: (() -> Void)?
@@ -57,6 +73,26 @@ class CalendarViewModel {
 
     func refreshDecorations() {
         onRequestDecorationRefresh?()
+    }
+
+    func days() -> [CalendarDayInfo] {
+        guard let challenge = getChallenge() else { return [] }
+
+        let calendar = Calendar.current
+        let startDate = calendar.startOfDay(for: challenge.startDate)
+
+        return (0..<54).compactMap { offset in
+            guard let date = calendar.date(byAdding: .day, value: offset, to: startDate) else {
+                return nil
+            }
+
+            return CalendarDayInfo(
+                dayNumber: offset + 1,
+                date: date,
+                completedCount: CoreDataManager.shared.getCompletedExerciseCount(for: date, challenge: challenge),
+                phase: offset < 27 ? .petition : .thanksgiving
+            )
+        }
     }
     
     func getChallenge() -> Challenge? {
