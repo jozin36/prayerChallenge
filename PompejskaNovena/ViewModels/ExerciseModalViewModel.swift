@@ -86,4 +86,15 @@ final class ExerciseModalViewModel: ObservableObject {
     public func getDate()->Date {
         return self.date
     }
+
+    public func getNovenaDayNumber() -> Int? {
+        guard let challenge = CoreDataManager.shared.getCurrentChallenge() else { return nil }
+
+        let calendar = Calendar.current
+        let startDate = calendar.startOfDay(for: challenge.startDate)
+        let components = calendar.dateComponents([.day], from: startDate, to: date)
+
+        guard let dayOffset = components.day else { return nil }
+        return dayOffset + 1
+    }
 }

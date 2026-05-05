@@ -232,9 +232,9 @@ class HomeViewController: UIViewController {
     private func updateProgress() {
         let progress = viewModel.currentProgress()
         progressCircleView.progress = progress.percentage
-        progressCircleView.currentDay = Int(progress.passedDays + 1)
+        progressCircleView.currentDayOffset = progress.passedDays
 
-        phaseLabel.text = progress.percentage <= 0.5 ? "Prosebná časť" : "Ďakovná časť"
+        phaseLabel.text = progress.passedDays + 1 <= 27 ? "Prosebná časť" : "Ďakovná časť"
         restartButton.isHidden = viewModel.getChallenge() == nil
         completionCard.isHidden = !progress.isComplete
     }

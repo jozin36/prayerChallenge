@@ -53,7 +53,8 @@ final class ChallengeProgressViewModel {
             let clampedToday = min(max(today, start), end)
             
             let totalDays = calendar.dateComponents([.day], from: start, to: end).day ?? 1
-            let passedDays = calendar.dateComponents([.day], from: start, to: clampedToday).day ?? 0
+            let passedDays = calendar.dateComponents([.day], from: start, to: today).day ?? 0
+            let elapsedDays = calendar.dateComponents([.day], from: start, to: clampedToday).day ?? 0
             
             print("start date: \(challenge.startDate)")
             print("endDate: \(challenge.endDate)")
@@ -66,7 +67,7 @@ final class ChallengeProgressViewModel {
                 isComplete: completed >= totalExpected,
                 totalDays: totalDays + 1,
                 passedDays: passedDays,
-                missedExercises: (passedDays * 3) - completed
+                missedExercises: max((elapsedDays * 3) - completed, 0)
             )
         } catch {
             print("❌ Failed to count completed exercises:", error)

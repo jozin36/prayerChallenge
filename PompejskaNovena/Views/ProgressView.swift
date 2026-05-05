@@ -151,14 +151,23 @@ class ProgressView: UIView {
     private func updateProgress() {
         percentageLabel.text = "\(Int(progress.percentage * 100))% hotovo"
         completedLabel.text = "Pomodlené \(progress.completed) \(getLocalizedString(progress.completed))"
-        daysLabel.text = "\(Int(progress.passedDays + 1)) deň novény z \(progress.totalDays)"
+        if progress.passedDays >= 0 {
+            daysLabel.text = "\(Int(progress.passedDays + 1)) deň novény z \(progress.totalDays)"
+        } else {
+            let daysUntilStart = abs(progress.passedDays)
+            daysLabel.text = "Začíname o \(daysUntilStart) \(getFutureDaysString(daysUntilStart))"
+        }
         
         if (progress.percentage <= 0.5) {
             progressBar.backgroundColor = ColorProvider.shared.firstHalfProgressBarColor
-            daysLabel.text?.append(" - prosebná časť")
+            if progress.passedDays >= 0 {
+                daysLabel.text?.append(" - prosebná časť")
+            }
         } else {
             progressBar.backgroundColor = ColorProvider.shared.secondHalfProgressBarColor
-            daysLabel.text?.append(" - ďakovná časť")
+            if progress.passedDays >= 0 {
+                daysLabel.text?.append(" - ďakovná časť")
+            }
         }
         
         missedLabel.text = "Meškáš \(progress.missedExercises) "
@@ -176,5 +185,17 @@ class ProgressView: UIView {
             self.progressConstraint.constant = self.containerView.bounds.width * clamped
             self.layoutIfNeeded()
         }
+    }
+
+    private func getFutureDaysString(_ number: Int) -> String {
+        if number == 1 {
+            return "deň"
+        }
+
+        if number > 1 && number < 5 {
+            return "dni"
+        }
+
+        return "dní"
     }
 }

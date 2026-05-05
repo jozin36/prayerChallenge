@@ -19,9 +19,9 @@ final class HomeProgressCircleView: UIView {
         }
     }
 
-    var currentDay: Int = 1 {
+    var currentDayOffset: Int = 0 {
         didSet {
-            dayLabel.text = "\(currentDay)"
+            updateLabels()
         }
     }
 
@@ -87,6 +87,33 @@ final class HomeProgressCircleView: UIView {
             labelStack.centerXAnchor.constraint(equalTo: centerXAnchor),
             labelStack.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
+
+        updateLabels()
+    }
+
+    private func updateLabels() {
+        if currentDayOffset >= 0 {
+            topLabel.text = "Deň"
+            dayLabel.text = "\(min(currentDayOffset + 1, 54))"
+            bottomLabel.text = "z 54"
+        } else {
+            let daysUntilStart = abs(currentDayOffset)
+            topLabel.text = "Začíname o"
+            dayLabel.text = "\(daysUntilStart)"
+            bottomLabel.text = daysString(daysUntilStart)
+        }
+    }
+
+    private func daysString(_ days: Int) -> String {
+        if days == 1 {
+            return "deň"
+        }
+
+        if days > 1 && days < 5 {
+            return "dni"
+        }
+
+        return "dní"
     }
 
     private func updateCirclePath() {
