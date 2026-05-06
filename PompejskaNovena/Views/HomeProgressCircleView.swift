@@ -41,17 +41,22 @@ final class HomeProgressCircleView: UIView {
         updateProgress(animated: false)
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        guard previousTraitCollection?.hasDifferentColorAppearance(comparedTo: traitCollection) == true else { return }
+        updateColors()
+    }
+
     private func setupUI() {
         translatesAutoresizingMaskIntoConstraints = false
 
         trackLayer.fillColor = UIColor.clear.cgColor
-        trackLayer.strokeColor = ColorProvider.shared.primaryContainerColour.cgColor
         trackLayer.lineWidth = 12
         trackLayer.lineCap = .round
         layer.addSublayer(trackLayer)
 
         progressLayer.fillColor = UIColor.clear.cgColor
-        progressLayer.strokeColor = ColorProvider.shared.firstHalfProgressBarColor.cgColor
         progressLayer.lineWidth = 12
         progressLayer.lineCap = .round
         progressLayer.strokeEnd = 0
@@ -89,6 +94,19 @@ final class HomeProgressCircleView: UIView {
         ])
 
         updateLabels()
+        updateColors()
+    }
+
+    private func updateColors() {
+        trackLayer.strokeColor = ColorProvider.shared.primaryContainerColour
+            .resolvedColor(with: traitCollection)
+            .cgColor
+        progressLayer.strokeColor = ColorProvider.shared.firstHalfProgressBarColor
+            .resolvedColor(with: traitCollection)
+            .cgColor
+        topLabel.textColor = ColorProvider.shared.mutedTextColour
+        dayLabel.textColor = .label
+        bottomLabel.textColor = ColorProvider.shared.mutedTextColour
     }
 
     private func updateLabels() {
