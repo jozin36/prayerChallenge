@@ -24,7 +24,7 @@ class FAQCardCell: UITableViewCell {
     private let headerRow = UIStackView()
     private var answerTopConstraint: NSLayoutConstraint!
     private var answerBottomConstraint: NSLayoutConstraint!
-    private var collapsedBottomConstraint: NSLayoutConstraint!
+    private var answerHeightConstraint: NSLayoutConstraint!
 
     private var isExpanded = false
 
@@ -121,11 +121,13 @@ class FAQCardCell: UITableViewCell {
             chevron.heightAnchor.constraint(equalToConstant: 14),
         ])
 
-        answerTopConstraint = answerContainer.topAnchor.constraint(equalTo: headerContainer.bottomAnchor, constant: AppDesign.Spacing.md)
+        answerTopConstraint = answerContainer.topAnchor.constraint(equalTo: headerContainer.bottomAnchor, constant: 0)
         answerBottomConstraint = answerContainer.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -AppDesign.Spacing.md)
-        collapsedBottomConstraint = headerContainer.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -AppDesign.Spacing.md)
+        answerHeightConstraint = answerContainer.heightAnchor.constraint(equalToConstant: 0)
 
-        collapsedBottomConstraint.isActive = true
+        answerTopConstraint.isActive = true
+        answerBottomConstraint.isActive = true
+        answerHeightConstraint.isActive = true
     }
 
     func configure(with item: FAQItem, animated: Bool = false) {
@@ -135,13 +137,11 @@ class FAQCardCell: UITableViewCell {
         applyCurrentTextSize()
 
         if item.isExpanded {
-            collapsedBottomConstraint.isActive = false
-            answerTopConstraint.isActive = true
-            answerBottomConstraint.isActive = true
+            answerTopConstraint.constant = AppDesign.Spacing.md
+            answerHeightConstraint.isActive = false
         } else {
-            answerTopConstraint.isActive = false
-            answerBottomConstraint.isActive = false
-            collapsedBottomConstraint.isActive = true
+            answerTopConstraint.constant = 0
+            answerHeightConstraint.isActive = true
         }
 
         if animated {
@@ -153,10 +153,13 @@ class FAQCardCell: UITableViewCell {
                 answerContainer.isHidden = false
             }
 
+            UIView.performWithoutAnimation {
+                self.contentView.layoutIfNeeded()
+            }
+
             UIView.animate(withDuration: 0.25) {
                 self.chevron.transform = item.isExpanded ? .identity : CGAffineTransform(rotationAngle: .pi)
                 self.answerLabel.alpha = item.isExpanded ? 1 : 0
-                self.contentView.layoutIfNeeded()
             }
 
             if !item.isExpanded {
@@ -421,14 +424,19 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
             affectedIndexPaths.append(IndexPath(row: previouslyExpandedIndex, section: indexPath.section))
         }
 
-        affectedIndexPaths.forEach { affectedIndexPath in
-            guard let cell = tableView.cellForRow(at: affectedIndexPath) as? FAQCardCell else { return }
-            cell.configure(with: faqItems[affectedIndexPath.row], animated: false)
-        }
-
         UIView.performWithoutAnimation {
+            affectedIndexPaths.forEach { affectedIndexPath in
+                guard let cell = tableView.cellForRow(at: affectedIndexPath) as? FAQCardCell else { return }
+                cell.configure(with: faqItems[affectedIndexPath.row], animated: false)
+            }
+
             tableView.beginUpdates()
             tableView.endUpdates()
+        }
+
+        affectedIndexPaths.forEach { affectedIndexPath in
+            guard let cell = tableView.cellForRow(at: affectedIndexPath) as? FAQCardCell else { return }
+            cell.configure(with: faqItems[affectedIndexPath.row], animated: true)
         }
     }
 
