@@ -328,7 +328,6 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
         tableView.tableHeaderView = makeHeaderView()
-        tableView.tableFooterView = makeFooterView()
 
         view.addSubview(tableView)
         
@@ -382,51 +381,6 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
         ])
 
         return headerView
-    }
-
-    private func makeFooterView() -> UIView {
-        let card = UIView()
-        card.backgroundColor = ColorProvider.shared.secondaryContainerColour
-        card.layer.cornerRadius = AppDesign.Radius.small
-        card.layer.cornerCurve = .continuous
-        card.translatesAutoresizingMaskIntoConstraints = false
-
-        let titleLabel = UILabel()
-        titleLabel.text = "O 54-dňovej pompejskej novéne"
-        titleLabel.font = .systemFont(ofSize: 17, weight: .semibold)
-        titleLabel.textColor = .label
-        titleLabel.numberOfLines = 0
-
-        let bodyLabel = UILabel()
-        bodyLabel.text = "54-dňová ružencová novéna pozostáva z piatich desiatkov ruženčeka každý deň po dobu 27 dní v prosbe, nasledovaných piatimi desiatkami každý deň po dobu 27 dní v ďakovaní, bez ohľadu na to, či bola prosba vypočutá alebo nie."
-        bodyLabel.font = AppDesign.Font.caption()
-        bodyLabel.textColor = .label
-        bodyLabel.numberOfLines = 0
-
-        let stack = UIStackView(arrangedSubviews: [titleLabel, bodyLabel])
-        stack.axis = .vertical
-        stack.spacing = AppDesign.Spacing.sm
-        stack.translatesAutoresizingMaskIntoConstraints = false
-
-        card.addSubview(stack)
-
-        let footerView = UIView()
-        footerView.backgroundColor = .clear
-        footerView.addSubview(card)
-
-        NSLayoutConstraint.activate([
-            card.topAnchor.constraint(equalTo: footerView.topAnchor, constant: AppDesign.Spacing.sm),
-            card.leadingAnchor.constraint(equalTo: footerView.leadingAnchor),
-            card.trailingAnchor.constraint(equalTo: footerView.trailingAnchor),
-            card.bottomAnchor.constraint(equalTo: footerView.bottomAnchor, constant: -AppDesign.Spacing.lg),
-
-            stack.topAnchor.constraint(equalTo: card.topAnchor, constant: AppDesign.Spacing.md),
-            stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: AppDesign.Spacing.md),
-            stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -AppDesign.Spacing.md),
-            stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -AppDesign.Spacing.md)
-        ])
-
-        return footerView
     }
 
     private func resizeTableSupplementaryViews() {
