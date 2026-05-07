@@ -122,6 +122,106 @@ private final class ReminderSettingCardView: UIView {
     }
 }
 
+private final class TimePickerModalViewController: UIViewController {
+    private let initialDate: Date
+    private let cardView = UIView()
+    private let titleLabel = UILabel()
+    private let picker = UIDatePicker()
+    private let cancelButton = UIButton(type: .system)
+    private let confirmButton = UIButton(type: .system)
+    private let buttonRow = UIStackView()
+    private let contentStack = UIStackView()
+
+    var onConfirm: ((Date) -> Void)?
+
+    init(initialDate: Date) {
+        self.initialDate = initialDate
+        super.init(nibName: nil, bundle: nil)
+        modalPresentationStyle = .overFullScreen
+        modalTransitionStyle = .crossDissolve
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+    }
+
+    private func setupUI() {
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.35)
+
+        cardView.translatesAutoresizingMaskIntoConstraints = false
+        cardView.backgroundColor = ColorProvider.shared.elevatedSurfaceColour
+        cardView.layer.cornerRadius = AppDesign.Radius.medium
+        cardView.layer.cornerCurve = .continuous
+        cardView.clipsToBounds = true
+
+        titleLabel.text = "Zvoľte čas"
+        titleLabel.font = AppDesign.Font.title()
+        titleLabel.textColor = .label
+        titleLabel.textAlignment = .center
+        titleLabel.numberOfLines = 0
+
+        picker.datePickerMode = .time
+        picker.preferredDatePickerStyle = .wheels
+        picker.date = initialDate
+        picker.locale = Locale(identifier: "sk_SK")
+
+        cancelButton.setTitle("Zrušiť", for: .normal)
+        cancelButton.applySecondaryStyle()
+        cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
+
+        confirmButton.setTitle("Nastaviť", for: .normal)
+        confirmButton.applyPrimaryStyle()
+        confirmButton.addTarget(self, action: #selector(confirmTapped), for: .touchUpInside)
+
+        buttonRow.axis = .horizontal
+        buttonRow.distribution = .fillEqually
+        buttonRow.spacing = AppDesign.Spacing.sm
+        buttonRow.addArrangedSubview(cancelButton)
+        buttonRow.addArrangedSubview(confirmButton)
+
+        contentStack.axis = .vertical
+        contentStack.spacing = AppDesign.Spacing.md
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        contentStack.addArrangedSubview(titleLabel)
+        contentStack.addArrangedSubview(picker)
+        contentStack.addArrangedSubview(buttonRow)
+
+        view.addSubview(cardView)
+        cardView.addSubview(contentStack)
+
+        NSLayoutConstraint.activate([
+            cardView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            cardView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            cardView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: AppDesign.Spacing.lg),
+            cardView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -AppDesign.Spacing.lg),
+            cardView.widthAnchor.constraint(lessThanOrEqualToConstant: 360),
+
+            contentStack.topAnchor.constraint(equalTo: cardView.topAnchor, constant: AppDesign.Spacing.lg),
+            contentStack.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: AppDesign.Spacing.lg),
+            contentStack.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -AppDesign.Spacing.lg),
+            contentStack.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -AppDesign.Spacing.lg),
+
+            picker.heightAnchor.constraint(equalToConstant: 180),
+            cancelButton.heightAnchor.constraint(equalToConstant: 50),
+            confirmButton.heightAnchor.constraint(equalToConstant: 50)
+        ])
+    }
+
+    @objc private func cancelTapped() {
+        dismiss(animated: true)
+    }
+
+    @objc private func confirmTapped() {
+        onConfirm?(picker.date)
+        dismiss(animated: true)
+    }
+}
+
 class SettingsViewController: UIViewController {
 
     private let viewModel: SettingsViewModel
@@ -340,35 +440,16 @@ class SettingsViewController: UIViewController {
     }
 
     private func presentTimePicker(for index: Int, sourceView: UIView) {
-        let picker = UIDatePicker()
-        picker.datePickerMode = .time
-        picker.preferredDatePickerStyle = .wheels
-        picker.date = reminderTimes[index]
-
-        let alert = UIAlertController(title: "Zvoľte čas", message: "\n\n\n\n\n\n", preferredStyle: .actionSheet)
-        alert.view.addSubview(picker)
-        picker.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            picker.centerXAnchor.constraint(equalTo: alert.view.centerXAnchor),
-            picker.topAnchor.constraint(equalTo: alert.view.topAnchor, constant: 20),
-            picker.heightAnchor.constraint(equalToConstant: 170)
-        ])
-
-        if let popover = alert.popoverPresentationController {
-            popover.sourceView = sourceView
-            popover.sourceRect = sourceView.bounds
-        }
-
-        alert.addAction(UIAlertAction(title: "Zrušiť", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Nastaviť", style: .default) { [weak self] _ in
+        let pickerModal = TimePickerModalViewController(initialDate: reminderTimes[index])
+        pickerModal.onConfirm = { [weak self] date in
             guard let self else { return }
-            self.reminderTimes[index] = picker.date
-            self.reminderCards[index].updateTime(self.timeString(for: picker.date))
+            self.reminderTimes[index] = date
+            self.reminderCards[index].updateTime(self.timeString(for: date))
             self.saveReminderSettings()
             self.scheduleNotifications()
-        })
+        }
 
-        present(alert, animated: true)
+        present(pickerModal, animated: true)
     }
 
     private func saveReminderSettings() {

@@ -38,7 +38,7 @@ class ColorProvider {
             case .dark:
                 return UIColor(red: 33/255, green: 31/255, blue: 38/255, alpha: 1.0)
             default:
-                return UIColor(red: 255/255, green: 251/255, blue: 254/255, alpha: 1.0)
+                return UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
             }
         }
     }
