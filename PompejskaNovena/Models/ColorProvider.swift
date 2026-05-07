@@ -69,9 +69,9 @@ class ColorProvider {
         return UIColor { trait in
             switch trait.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 79/255, green: 55/255, blue: 139/255, alpha: 1.0)
+                return UIColor(red: 47/255, green: 69/255, blue: 120/255, alpha: 1.0)
             default:
-                return UIColor(red: 234/255, green: 221/255, blue: 255/255, alpha: 1.0)
+                return UIColor(red: 47/255, green: 69/255, blue: 120/255, alpha: 1.0)
             }
         }
     }
@@ -80,9 +80,9 @@ class ColorProvider {
         return UIColor { trait in
             switch trait.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 234/255, green: 221/255, blue: 255/255, alpha: 1.0)
+                return UIColor.white
             default:
-                return UIColor(red: 33/255, green: 0/255, blue: 93/255, alpha: 1.0)
+                return UIColor.white
             }
         }
     }
@@ -94,6 +94,50 @@ class ColorProvider {
                 return UIColor(red: 74/255, green: 68/255, blue: 88/255, alpha: 1.0)
             default:
                 return UIColor(red: 232/255, green: 222/255, blue: 248/255, alpha: 1.0)
+            }
+        }
+    }
+
+    var errorColour: UIColor {
+        return UIColor { trait in
+            switch trait.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 242/255, green: 184/255, blue: 181/255, alpha: 1.0)
+            default:
+                return UIColor(red: 179/255, green: 38/255, blue: 30/255, alpha: 1.0)
+            }
+        }
+    }
+
+    var onErrorColour: UIColor {
+        return UIColor { trait in
+            switch trait.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 96/255, green: 20/255, blue: 16/255, alpha: 1.0)
+            default:
+                return UIColor.white
+            }
+        }
+    }
+
+    var errorContainerColour: UIColor {
+        return UIColor { trait in
+            switch trait.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 140/255, green: 29/255, blue: 24/255, alpha: 1.0)
+            default:
+                return UIColor(red: 249/255, green: 222/255, blue: 220/255, alpha: 1.0)
+            }
+        }
+    }
+
+    var onErrorContainerColour: UIColor {
+        return UIColor { trait in
+            switch trait.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 249/255, green: 222/255, blue: 220/255, alpha: 1.0)
+            default:
+                return UIColor(red: 65/255, green: 14/255, blue: 11/255, alpha: 1.0)
             }
         }
     }

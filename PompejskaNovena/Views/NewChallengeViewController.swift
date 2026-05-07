@@ -72,7 +72,7 @@ final class NewChallengeViewController: UIViewController {
         mottoView.addSubview(placeholderLabel)
         
         alertLabel.text = "Ak začnete znovu, všetky uložené dáta a história z predošlej novény sa vymažú!"
-        alertLabel.textColor = .systemRed
+        alertLabel.textColor = ColorProvider.shared.errorColour
         alertLabel.font = .systemFont(ofSize: 13)
         alertLabel.translatesAutoresizingMaskIntoConstraints = false
         alertLabel.numberOfLines = 0
@@ -80,7 +80,7 @@ final class NewChallengeViewController: UIViewController {
         alertLabel.textAlignment = .left
         
         warningLabel.text = "Upozornenie"
-        warningLabel.textColor = .systemRed
+        warningLabel.textColor = ColorProvider.shared.errorColour
         warningLabel.font = .systemFont(ofSize: 15, weight: .semibold)
         warningLabel.translatesAutoresizingMaskIntoConstraints = false
         warningLabel.numberOfLines = 0

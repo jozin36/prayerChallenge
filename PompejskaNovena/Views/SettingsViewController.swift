@@ -283,29 +283,29 @@ class SettingsViewController: UIViewController {
     private func setupDangerZoneSection() {
         dangerZoneTitleLabel.text = "Nebezpečná zóna"
         dangerZoneTitleLabel.font = AppDesign.Font.title()
-        dangerZoneTitleLabel.textColor = .systemRed
+        dangerZoneTitleLabel.textColor = ColorProvider.shared.errorColour
         dangerZoneTitleLabel.numberOfLines = 0
 
         dangerZoneCard.translatesAutoresizingMaskIntoConstraints = false
-        dangerZoneCard.backgroundColor = ColorProvider.shared.secondaryContainerColour
+        dangerZoneCard.backgroundColor = ColorProvider.shared.errorContainerColour
         dangerZoneCard.layer.cornerRadius = AppDesign.Radius.small
         dangerZoneCard.layer.cornerCurve = .continuous
 
         dangerZoneCardTitleLabel.text = "Resetovať aplikáciu"
         dangerZoneCardTitleLabel.font = AppDesign.Font.headline()
-        dangerZoneCardTitleLabel.textColor = .label
+        dangerZoneCardTitleLabel.textColor = ColorProvider.shared.onErrorContainerColour
         dangerZoneCardTitleLabel.numberOfLines = 0
 
         dangerZoneCardBodyLabel.text = "Táto akcia resetuje aplikáciu do pôvodného stavu a odstráni všetky užívateľské dáta."
         dangerZoneCardBodyLabel.font = AppDesign.Font.body()
-        dangerZoneCardBodyLabel.textColor = ColorProvider.shared.mutedTextColour
+        dangerZoneCardBodyLabel.textColor = ColorProvider.shared.onErrorContainerColour
         dangerZoneCardBodyLabel.numberOfLines = 0
 
         resetButton.setTitle("Resetovať aplikáciu", for: .normal)
         resetButton.applyPrimaryStyle()
-        resetButton.backgroundColor = .systemRed
-        resetButton.setTitleColor(.white, for: .normal)
-        resetButton.setTitleColor(.white.withAlphaComponent(0.65), for: .highlighted)
+        resetButton.backgroundColor = ColorProvider.shared.errorColour
+        resetButton.setTitleColor(ColorProvider.shared.onErrorColour, for: .normal)
+        resetButton.setTitleColor(ColorProvider.shared.onErrorColour.withAlphaComponent(0.65), for: .highlighted)
         resetButton.addTarget(self, action: #selector(resetButtonTapped), for: .touchUpInside)
 
         let cardStack = UIStackView(arrangedSubviews: [

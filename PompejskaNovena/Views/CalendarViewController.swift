@@ -272,12 +272,18 @@ final class CalendarViewController: UIViewController, UIAdaptivePresentationCont
     private func configureLegend() {
         legendRow.axis = .horizontal
         legendRow.alignment = .center
-        legendRow.distribution = .equalCentering
+        legendRow.distribution = .fill
         legendRow.spacing = AppDesign.Spacing.md
         legendRow.translatesAutoresizingMaskIntoConstraints = false
 
+        let leadingSpacer = UIView()
+        let trailingSpacer = UIView()
         legendRow.addArrangedSubview(makeLegendItem(color: ColorProvider.shared.primaryContainerColour, text: "Dokončené"))
         legendRow.addArrangedSubview(makeLegendItem(color: ColorProvider.shared.primaryColour, text: "Dnes"))
+        legendRow.insertArrangedSubview(leadingSpacer, at: 0)
+        legendRow.addArrangedSubview(trailingSpacer)
+
+        leadingSpacer.widthAnchor.constraint(equalTo: trailingSpacer.widthAnchor).isActive = true
     }
 
     private func configureEmptyCard() {

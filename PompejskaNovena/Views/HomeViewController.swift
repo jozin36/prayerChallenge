@@ -27,6 +27,9 @@ class HomeViewController: UIViewController {
     private let completionLabel = UILabel()
     private let startButton = UIButton()
     private let restartButton = UIButton()
+    private let emptyStateTopSpacer = UIView()
+    private let emptyStateBottomSpacer = UIView()
+    private var emptyStateConstraints: [NSLayoutConstraint] = []
 
     init(viewModel: ChallengeProgressViewModel) {
         self.viewModel = viewModel
@@ -68,10 +71,12 @@ class HomeViewController: UIViewController {
 
             startButton.setTitle("Začať pompejskú novénu", for: .normal)
 
+            contentStack.addArrangedSubview(emptyStateTopSpacer)
             contentStack.addArrangedSubview(welcomeLabel)
             contentStack.addArrangedSubview(subtitleLabel)
             contentStack.setCustomSpacing(AppDesign.Spacing.xl, after: subtitleLabel)
             contentStack.addArrangedSubview(startButton)
+            contentStack.addArrangedSubview(emptyStateBottomSpacer)
 
             activateEmptyStateConstraints()
         }
@@ -80,6 +85,9 @@ class HomeViewController: UIViewController {
     }
 
     private func configureBaseViews() {
+        NSLayoutConstraint.deactivate(emptyStateConstraints)
+        emptyStateConstraints.removeAll()
+
         contentStack.arrangedSubviews.forEach { subview in
             contentStack.removeArrangedSubview(subview)
             subview.removeFromSuperview()
@@ -153,7 +161,7 @@ class HomeViewController: UIViewController {
         completionCard.layer.cornerRadius = AppDesign.Radius.small
         completionCard.layer.cornerCurve = .continuous
 
-        completionLabel.text = "Novéna je dokončená."
+        completionLabel.text = "Gratulujeme, novéna je úspešne dokončená."
         completionLabel.font = AppDesign.Font.body()
         completionLabel.textColor = ColorProvider.shared.onPrimaryContainerColour
         completionLabel.textAlignment = .center
@@ -170,6 +178,9 @@ class HomeViewController: UIViewController {
         restartButton.applySecondaryStyle()
         restartButton.removeTarget(nil, action: nil, for: .touchUpInside)
         restartButton.addTarget(self, action: #selector(self.didPushButton), for: .touchUpInside)
+
+        emptyStateTopSpacer.translatesAutoresizingMaskIntoConstraints = false
+        emptyStateBottomSpacer.translatesAutoresizingMaskIntoConstraints = false
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentStack)
@@ -211,16 +222,22 @@ class HomeViewController: UIViewController {
             startDateLabel.widthAnchor.constraint(equalTo: contentStack.widthAnchor),
             intentionCard.widthAnchor.constraint(equalTo: contentStack.widthAnchor),
             restartButton.widthAnchor.constraint(equalTo: contentStack.widthAnchor),
-            restartButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
+            restartButton.heightAnchor.constraint(equalToConstant: 50),
             completionCard.widthAnchor.constraint(equalTo: contentStack.widthAnchor)
         ])
     }
 
     private func activateEmptyStateConstraints() {
+        NSLayoutConstraint.deactivate(emptyStateConstraints)
+        emptyStateConstraints = [
+            contentStack.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.heightAnchor, constant: -(AppDesign.Spacing.xl + AppDesign.Spacing.lg)),
+            emptyStateTopSpacer.heightAnchor.constraint(equalTo: emptyStateBottomSpacer.heightAnchor)
+        ]
+
         NSLayoutConstraint.activate([
             startButton.widthAnchor.constraint(equalTo: contentStack.widthAnchor),
-            startButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 50)
-        ])
+            startButton.heightAnchor.constraint(equalToConstant: 50)
+        ] + emptyStateConstraints)
     }
     
     override func viewWillAppear(_ animated: Bool) {
