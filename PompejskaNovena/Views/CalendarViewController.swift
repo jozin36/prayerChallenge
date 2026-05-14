@@ -162,6 +162,64 @@ final class CalendarDayCell: UIView {
     }
 }
 
+final class CalendarGridView: UIView {
+    private let cellSize: CGFloat = 88
+    private let cellSpacing: CGFloat = 8
+    private var cells: [CalendarDayCell] = []
+    private var lastColumnCount = 0
+
+    func configure(days: [CalendarDayInfo], onTap: @escaping (Date) -> Void) {
+        cells.forEach { $0.removeFromSuperview() }
+        cells = days.map { day in
+            let cell = CalendarDayCell()
+            cell.configure(with: day, onTap: onTap)
+            addSubview(cell)
+            return cell
+        }
+
+        invalidateIntrinsicContentSize()
+        setNeedsLayout()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        let columnCount = adaptiveColumnCount(for: bounds.width)
+        if columnCount != lastColumnCount {
+            lastColumnCount = columnCount
+            invalidateIntrinsicContentSize()
+        }
+
+        let gridWidth = CGFloat(columnCount) * cellSize + CGFloat(max(0, columnCount - 1)) * cellSpacing
+        let originX = max(0, (bounds.width - gridWidth) / 2)
+
+        for (index, cell) in cells.enumerated() {
+            let row = index / columnCount
+            let column = index % columnCount
+            cell.frame = CGRect(
+                x: originX + CGFloat(column) * (cellSize + cellSpacing),
+                y: CGFloat(row) * (cellSize + cellSpacing),
+                width: cellSize,
+                height: cellSize
+            )
+        }
+    }
+
+    override var intrinsicContentSize: CGSize {
+        let width = bounds.width > 0 ? bounds.width : UIScreen.main.bounds.width
+        let columnCount = adaptiveColumnCount(for: width)
+        let rowCount = Int(ceil(Double(cells.count) / Double(columnCount)))
+        let height = CGFloat(rowCount) * cellSize + CGFloat(max(0, rowCount - 1)) * cellSpacing
+        return CGSize(width: UIView.noIntrinsicMetric, height: height)
+    }
+
+    private func adaptiveColumnCount(for width: CGFloat) -> Int {
+        guard !cells.isEmpty else { return 1 }
+        let count = Int(floor((width + cellSpacing) / (cellSize + cellSpacing)))
+        return min(max(1, count), cells.count)
+    }
+}
+
 final class CalendarViewController: UIViewController, UIAdaptivePresentationControllerDelegate {
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView()
@@ -358,38 +416,13 @@ final class CalendarViewController: UIViewController, UIAdaptivePresentationCont
         contentStack.setCustomSpacing(AppDesign.Spacing.lg, after: sectionStack)
     }
 
-    private func makeGrid(days: [CalendarDayInfo]) -> UIStackView {
-        let gridStack = UIStackView()
-        gridStack.axis = .vertical
-        gridStack.spacing = 8
-        gridStack.translatesAutoresizingMaskIntoConstraints = false
-
-        for chunkStart in stride(from: 0, to: days.count, by: 4) {
-            let row = UIStackView()
-            row.axis = .horizontal
-            row.spacing = 8
-            row.distribution = .fillEqually
-
-            let rowDays = Array(days[chunkStart..<min(chunkStart + 4, days.count)])
-            rowDays.forEach { day in
-                let cell = CalendarDayCell()
-                cell.configure(with: day) { [weak self] date in
-                    self?.onDateSelected?(date)
-                }
-                row.addArrangedSubview(cell)
-            }
-
-            if rowDays.count < 4 {
-                for _ in rowDays.count..<4 {
-                    let spacer = UIView()
-                    row.addArrangedSubview(spacer)
-                }
-            }
-
-            gridStack.addArrangedSubview(row)
+    private func makeGrid(days: [CalendarDayInfo]) -> CalendarGridView {
+        let grid = CalendarGridView()
+        grid.translatesAutoresizingMaskIntoConstraints = false
+        grid.configure(days: days) { [weak self] date in
+            self?.onDateSelected?(date)
         }
-
-        return gridStack
+        return grid
     }
 
     private func makeLegendItem(color: UIColor, text: String) -> UIView {

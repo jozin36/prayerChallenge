@@ -8,6 +8,8 @@
 import UIKit
 import UserNotifications
 
+private let settingsContentMaxWidth: CGFloat = 420
+
 private final class ReminderSettingCardView: UIView {
 
     private let titleLabel = UILabel()
@@ -358,6 +360,12 @@ class SettingsViewController: UIViewController {
         contentStack.addArrangedSubview(dangerZoneTitleLabel)
         contentStack.addArrangedSubview(dangerZoneCard)
 
+        let contentWidthConstraint = contentStack.widthAnchor.constraint(
+            equalTo: scrollView.frameLayoutGuide.widthAnchor,
+            constant: -48
+        )
+        contentWidthConstraint.priority = .defaultHigh
+
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
@@ -366,8 +374,11 @@ class SettingsViewController: UIViewController {
 
             contentStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 24),
             contentStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -24),
-            contentStack.leadingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.leadingAnchor, constant: 24),
-            contentStack.trailingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.trailingAnchor, constant: -24),
+            contentStack.centerXAnchor.constraint(equalTo: scrollView.frameLayoutGuide.centerXAnchor),
+            contentStack.leadingAnchor.constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.leadingAnchor, constant: 24),
+            contentStack.trailingAnchor.constraint(lessThanOrEqualTo: scrollView.frameLayoutGuide.trailingAnchor, constant: -24),
+            contentStack.widthAnchor.constraint(lessThanOrEqualToConstant: settingsContentMaxWidth),
+            contentWidthConstraint,
         ])
     }
 

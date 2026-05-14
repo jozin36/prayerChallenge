@@ -7,6 +7,8 @@
 
 import UIKit
 
+private let homeContentMaxWidth: CGFloat = 420
+
 class HomeViewController: UIViewController {
     public var buttonClickedCallback: (()-> Void)?
     
@@ -185,6 +187,12 @@ class HomeViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentStack)
 
+        let contentWidthConstraint = contentStack.widthAnchor.constraint(
+            equalTo: scrollView.frameLayoutGuide.widthAnchor,
+            constant: -AppDesign.Spacing.lg * 2
+        )
+        contentWidthConstraint.priority = .defaultHigh
+
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -192,8 +200,11 @@ class HomeViewController: UIViewController {
             scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
 
             contentStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: AppDesign.Spacing.xl),
-            contentStack.leadingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.leadingAnchor, constant: AppDesign.Spacing.lg),
-            contentStack.trailingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.trailingAnchor, constant: -AppDesign.Spacing.lg),
+            contentStack.centerXAnchor.constraint(equalTo: scrollView.frameLayoutGuide.centerXAnchor),
+            contentStack.leadingAnchor.constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.leadingAnchor, constant: AppDesign.Spacing.lg),
+            contentStack.trailingAnchor.constraint(lessThanOrEqualTo: scrollView.frameLayoutGuide.trailingAnchor, constant: -AppDesign.Spacing.lg),
+            contentStack.widthAnchor.constraint(lessThanOrEqualToConstant: homeContentMaxWidth),
+            contentWidthConstraint,
             contentStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -AppDesign.Spacing.lg),
 
             phaseLabel.topAnchor.constraint(equalTo: phaseCard.topAnchor, constant: AppDesign.Spacing.md),
