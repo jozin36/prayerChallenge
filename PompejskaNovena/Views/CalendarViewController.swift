@@ -14,6 +14,7 @@ final class CalendarDayCell: UIView {
     private let checkStack = UIStackView()
 
     private var date: Date?
+    private var dayInfo: CalendarDayInfo?
     private var onTap: ((Date) -> Void)?
     private var defaultTransform = CGAffineTransform.identity
 
@@ -28,32 +29,15 @@ final class CalendarDayCell: UIView {
     }
 
     func configure(with day: CalendarDayInfo, onTap: @escaping (Date) -> Void) {
+        dayInfo = day
         self.date = day.date
         self.onTap = onTap
 
-        let isToday = Calendar.current.isDateInToday(day.date)
-        let textColor: UIColor
-
-        if isToday {
-            backgroundColor = ColorProvider.shared.primaryColour
-            textColor = ColorProvider.shared.primaryTextColour
-            layer.borderWidth = 2
-        } else if day.isCompleted {
-            backgroundColor = ColorProvider.shared.primaryContainerColour
-            textColor = ColorProvider.shared.onPrimaryContainerColour
-            layer.borderWidth = 1
-        } else {
-            backgroundColor = ColorProvider.shared.surfaceColour
-            textColor = .label
-            layer.borderWidth = 1
-        }
+        applyVisualState(for: day)
 
         monthLabel.text = monthString(for: day.date)
-        monthLabel.textColor = textColor.withAlphaComponent(0.72)
         dayLabel.text = "\(Calendar.current.component(.day, from: day.date))"
-        dayLabel.textColor = textColor
         novenaDayLabel.text = "\(day.dayNumber). deň"
-        novenaDayLabel.textColor = textColor.withAlphaComponent(0.72)
 
         checkStack.arrangedSubviews.forEach { subview in
             checkStack.removeArrangedSubview(subview)
@@ -74,10 +58,41 @@ final class CalendarDayCell: UIView {
         }
     }
 
+    private func applyVisualState(for day: CalendarDayInfo) {
+        let isToday = Calendar.current.isDateInToday(day.date)
+        let textColor: UIColor
+
+        if isToday {
+            backgroundColor = ColorProvider.shared.primaryColour
+            textColor = ColorProvider.shared.primaryTextColour
+            layer.borderWidth = 2
+            layer.borderColor = ColorProvider.shared.primaryColour
+                .resolvedColor(with: traitCollection)
+                .cgColor
+        } else if day.isCompleted {
+            backgroundColor = ColorProvider.shared.primaryContainerColour
+            textColor = ColorProvider.shared.onPrimaryContainerColour
+            layer.borderWidth = 1
+            layer.borderColor = ColorProvider.shared.strokeColour
+                .resolvedColor(with: traitCollection)
+                .cgColor
+        } else {
+            backgroundColor = ColorProvider.shared.surfaceColour
+            textColor = .label
+            layer.borderWidth = 1
+            layer.borderColor = ColorProvider.shared.strokeColour
+                .resolvedColor(with: traitCollection)
+                .cgColor
+        }
+
+        monthLabel.textColor = textColor.withAlphaComponent(0.72)
+        dayLabel.textColor = textColor
+        novenaDayLabel.textColor = textColor.withAlphaComponent(0.72)
+    }
+
     private func setupUI() {
         layer.cornerRadius = AppDesign.Radius.small
         layer.cornerCurve = .continuous
-        layer.borderColor = ColorProvider.shared.strokeColour.cgColor
         clipsToBounds = true
         isUserInteractionEnabled = true
 
@@ -151,6 +166,7 @@ final class CalendarDayCell: UIView {
 
     @objc private func didTap() {
         guard let date else { return }
+        animatePressed(false)
         onTap?(date)
     }
 
@@ -160,11 +176,19 @@ final class CalendarDayCell: UIView {
             self.alpha = isPressed ? 0.82 : 1
         }
     }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if let dayInfo {
+            applyVisualState(for: dayInfo)
+        }
+    }
 }
 
 final class CalendarGridView: UIView {
-    private let cellSize: CGFloat = 88
-    private let cellSpacing: CGFloat = 8
+    private let cellSize: CGFloat = 85
+    private let cellSpacing: CGFloat = 7
     private var cells: [CalendarDayCell] = []
     private var lastColumnCount = 0
 
@@ -413,7 +437,7 @@ final class CalendarViewController: UIViewController, UIAdaptivePresentationCont
         sectionStack.addArrangedSubview(grid)
 
         contentStack.addArrangedSubview(sectionStack)
-        contentStack.setCustomSpacing(AppDesign.Spacing.lg, after: sectionStack)
+        contentStack.setCustomSpacing(AppDesign.Spacing.md, after: sectionStack)
     }
 
     private func makeGrid(days: [CalendarDayInfo]) -> CalendarGridView {
