@@ -8,29 +8,63 @@
 import AVFoundation
 import UIKit
 
+struct MysteryInvocation {
+    let marker: String
+    let text: String
+}
+
+struct Mystery {
+    let rosaryTitle: String
+    let note: String
+    let subtitle: String
+    let preInvocations: [MysteryInvocation]
+    let invocations: [MysteryInvocation]
+    let audioFileName: String
+    let exerciseType: String?
+}
+
 struct FAQItem {
     let question: String
-    let answer: String
-    let audioFileName: String?
-    let exerciseType: String?
+    let answer: String?
+    let mystery: Mystery?
     var isExpanded: Bool = false
+    var audioFileName: String? { mystery?.audioFileName }
+    var exerciseType: String? { mystery?.exerciseType }
 
-    init(question: String, answer: String, audioFileName: String? = nil, exerciseType: String? = nil, isExpanded: Bool = false) {
+    init(question: String, answer: String, isExpanded: Bool = false) {
         self.question = question
         self.answer = answer
-        self.audioFileName = audioFileName
-        self.exerciseType = exerciseType
+        self.mystery = nil
+        self.isExpanded = isExpanded
+    }
+
+    init(mystery: Mystery, isExpanded: Bool = false) {
+        self.question = mystery.rosaryTitle
+        self.answer = nil
+        self.mystery = mystery
         self.isExpanded = isExpanded
     }
 }
 
 class FAQCardCell: UITableViewCell {
+    private enum FAQStyle {
+        static let titleFont = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        static let bodyFont = UIFont.systemFont(ofSize: 15, weight: .regular)
+        static let mysteryBodyFont = UIFont.systemFont(ofSize: 16, weight: .medium)
+        static let mysterySubtitleFont = UIFont.systemFont(ofSize: 17, weight: .semibold)
+        static let mysteryPreInvocationFont = UIFont.systemFont(ofSize: 15, weight: .medium)
+        static let mysteryInvocationFont = UIFont.systemFont(ofSize: 15, weight: .semibold)
+        static let textColor = UIColor { trait in
+            trait.userInterfaceStyle == .dark ? .white : ColorProvider.shared.mutedTextColour.resolvedColor(with: trait)
+        }
+    }
 
     private let container = UIView()
     private let headerContainer = UIView()
     private let answerContainer = UIView()
     private let questionLabel = UILabel()
     private let answerLabel = UILabel()
+    private let answerStack = UIStackView()
     private let chevron = UIImageView()
     private let audioButton = UIButton(type: .system)
     private let headerRow = UIStackView()
@@ -58,8 +92,8 @@ class FAQCardCell: UITableViewCell {
     }
     
     private func applyCurrentTextSize() {
-        questionLabel.font = .systemFont(ofSize: 17, weight: .semibold)
-        answerLabel.font = AppDesign.Font.body()
+        questionLabel.font = FAQStyle.titleFont
+        answerLabel.font = FAQStyle.bodyFont
     }
 
     private func setupUI() {
@@ -73,15 +107,15 @@ class FAQCardCell: UITableViewCell {
         container.layer.borderWidth = 0
         container.layer.shadowOpacity = 0
 
-        questionLabel.font = .systemFont(ofSize: 17, weight: .semibold)
-        questionLabel.textColor = .label
+        questionLabel.font = FAQStyle.titleFont
+        questionLabel.textColor = FAQStyle.textColor
         questionLabel.numberOfLines = 0
         questionLabel.setContentHuggingPriority(.defaultLow, for: .vertical)
         questionLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
-        answerLabel.font = AppDesign.Font.body()
+        answerLabel.font = FAQStyle.bodyFont
         answerLabel.numberOfLines = 0
-        answerLabel.textColor = ColorProvider.shared.mutedTextColour
+        answerLabel.textColor = FAQStyle.textColor
         answerLabel.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
         chevron.image = UIImage(systemName: "triangle.fill")
@@ -107,13 +141,16 @@ class FAQCardCell: UITableViewCell {
 
         answerContainer.translatesAutoresizingMaskIntoConstraints = false
         answerContainer.clipsToBounds = true
-        answerContainer.addSubview(answerLabel)
+
+        answerStack.axis = .vertical
+        answerStack.alignment = .fill
+        answerStack.spacing = 0
+        answerStack.translatesAutoresizingMaskIntoConstraints = false
+        answerContainer.addSubview(answerStack)
 
         container.addSubview(headerContainer)
         container.addSubview(answerContainer)
         contentView.addSubview(container)
-
-        answerLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
             container.topAnchor.constraint(equalTo: contentView.topAnchor, constant: AppDesign.Spacing.sm),
@@ -133,13 +170,13 @@ class FAQCardCell: UITableViewCell {
             answerContainer.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: AppDesign.Spacing.md),
             answerContainer.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -AppDesign.Spacing.md),
 
-            answerLabel.topAnchor.constraint(equalTo: answerContainer.topAnchor),
-            answerLabel.bottomAnchor.constraint(equalTo: answerContainer.bottomAnchor),
-            answerLabel.leadingAnchor.constraint(equalTo: answerContainer.leadingAnchor),
-            answerLabel.trailingAnchor.constraint(equalTo: answerContainer.trailingAnchor),
+            answerStack.topAnchor.constraint(equalTo: answerContainer.topAnchor),
+            answerStack.bottomAnchor.constraint(equalTo: answerContainer.bottomAnchor),
+            answerStack.leadingAnchor.constraint(equalTo: answerContainer.leadingAnchor),
+            answerStack.trailingAnchor.constraint(equalTo: answerContainer.trailingAnchor),
 
-            chevron.widthAnchor.constraint(equalToConstant: 14),
-            chevron.heightAnchor.constraint(equalToConstant: 14),
+            chevron.widthAnchor.constraint(equalToConstant: 16),
+            chevron.heightAnchor.constraint(equalToConstant: 16),
             audioButton.widthAnchor.constraint(equalToConstant: 40),
             audioButton.heightAnchor.constraint(equalToConstant: 40),
         ])
@@ -155,10 +192,10 @@ class FAQCardCell: UITableViewCell {
 
     func configure(with item: FAQItem, animated: Bool = false) {
         questionLabel.text = item.question
-        answerLabel.text = item.answer
         isExpanded = item.isExpanded
         audioButton.isHidden = item.audioFileName == nil
         applyCurrentTextSize()
+        configureAnswerContent(for: item)
 
         if item.isExpanded {
             answerTopConstraint.constant = AppDesign.Spacing.md
@@ -171,9 +208,9 @@ class FAQCardCell: UITableViewCell {
         if animated {
             if item.isExpanded {
                 answerContainer.isHidden = false
-                answerLabel.alpha = 0
+                answerStack.alpha = 0
             } else {
-                answerLabel.alpha = 0
+                answerStack.alpha = 0
                 answerContainer.isHidden = false
             }
 
@@ -183,7 +220,7 @@ class FAQCardCell: UITableViewCell {
 
             UIView.animate(withDuration: 0.25) {
                 self.chevron.transform = item.isExpanded ? .identity : CGAffineTransform(rotationAngle: .pi)
-                self.answerLabel.alpha = item.isExpanded ? 1 : 0
+                self.answerStack.alpha = item.isExpanded ? 1 : 0
             }
 
             if !item.isExpanded {
@@ -195,9 +232,139 @@ class FAQCardCell: UITableViewCell {
         } else {
             // reset transform immediately to avoid reuse bugs
             chevron.transform = item.isExpanded ? .identity : CGAffineTransform(rotationAngle: .pi)
-            answerLabel.alpha = isExpanded ? 1 : 0
+            answerStack.alpha = isExpanded ? 1 : 0
             answerContainer.isHidden = !isExpanded
         }
+    }
+
+    private func configureAnswerContent(for item: FAQItem) {
+        answerStack.arrangedSubviews.forEach { view in
+            answerStack.removeArrangedSubview(view)
+            view.removeFromSuperview()
+        }
+
+        guard let mystery = item.mystery else {
+            answerLabel.text = item.answer
+            answerLabel.font = FAQStyle.bodyFont
+            answerLabel.numberOfLines = 0
+            answerLabel.textColor = FAQStyle.textColor
+            answerStack.addArrangedSubview(answerLabel)
+            return
+        }
+
+        configureMysteryContent(mystery)
+    }
+
+    private func configureMysteryContent(_ mystery: Mystery) {
+        answerStack.addArrangedSubview(paddedContainer(for: makeMysteryBodyLabel(text: "(\(mystery.note))"), top: 0, bottom: 10))
+        answerStack.addArrangedSubview(paddedContainer(for: makeMysterySubtitleLabel(text: mystery.subtitle), top: 0, bottom: 8))
+
+        mystery.preInvocations.enumerated().forEach { index, invocation in
+            answerStack.addArrangedSubview(makeMysteryPreInvocationRow(invocation))
+            if index < mystery.preInvocations.count - 1 {
+                answerStack.addArrangedSubview(verticalSpacer(height: 2))
+            }
+        }
+
+        answerStack.addArrangedSubview(verticalSpacer(height: 14))
+
+        mystery.invocations.enumerated().forEach { index, invocation in
+            answerStack.addArrangedSubview(makeMysteryInvocationRow(invocation))
+            if index < mystery.invocations.count - 1 {
+                answerStack.addArrangedSubview(verticalSpacer(height: 2))
+                answerStack.addArrangedSubview(makeDivider())
+                answerStack.addArrangedSubview(verticalSpacer(height: 2))
+            }
+        }
+    }
+
+    private func makeMysteryBodyLabel(text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.textColor = UIColor { trait in
+            ColorProvider.shared.mutedTextColour
+        }
+        label.numberOfLines = 0
+        return label
+    }
+
+    private func makeMysterySubtitleLabel(text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = FAQStyle.mysterySubtitleFont
+        label.textColor = FAQStyle.textColor
+        label.numberOfLines = 0
+        return label
+    }
+
+    private func makeMysteryPreInvocationRow(_ invocation: MysteryInvocation) -> UIView {
+        makeMysteryInvocationRow(invocation, font: FAQStyle.mysteryPreInvocationFont, top: 4, bottom: 4)
+    }
+
+    private func makeMysteryInvocationRow(_ invocation: MysteryInvocation) -> UIView {
+        makeMysteryInvocationRow(invocation, font: FAQStyle.mysteryInvocationFont, top: 12, bottom: 12)
+    }
+
+    private func makeMysteryInvocationRow(_ invocation: MysteryInvocation, font: UIFont, top: CGFloat, bottom: CGFloat) -> UIView {
+        let markerLabel = UILabel()
+        markerLabel.text = invocation.marker
+        markerLabel.font = font
+        markerLabel.textColor = FAQStyle.textColor
+        markerLabel.setContentHuggingPriority(.required, for: .horizontal)
+        markerLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        let invocationLabel = UILabel()
+        invocationLabel.text = invocation.text
+        invocationLabel.font = font
+        invocationLabel.textColor = FAQStyle.textColor
+        invocationLabel.numberOfLines = 0
+
+        let row = UIStackView(arrangedSubviews: [markerLabel, invocationLabel])
+        row.axis = .horizontal
+        row.alignment = .top
+        row.spacing = 8
+        row.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            markerLabel.widthAnchor.constraint(equalToConstant: 24)
+        ])
+
+        return paddedContainer(for: row, top: top, bottom: bottom)
+    }
+
+    private func makeDivider() -> UIView {
+        let divider = UIView()
+        divider.backgroundColor = ColorProvider.shared.strokeColour
+        divider.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            divider.heightAnchor.constraint(equalToConstant: 1 / UIScreen.main.scale)
+        ])
+        return divider
+    }
+
+    private func paddedContainer(for view: UIView, top: CGFloat, bottom: CGFloat) -> UIView {
+        let container = UIView()
+        container.addSubview(view)
+        view.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            view.topAnchor.constraint(equalTo: container.topAnchor, constant: top),
+            view.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -bottom),
+            view.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: container.trailingAnchor)
+        ])
+
+        return container
+    }
+
+    private func verticalSpacer(height: CGFloat) -> UIView {
+        let spacer = UIView()
+        spacer.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            spacer.heightAnchor.constraint(equalToConstant: height)
+        ])
+        return spacer
     }
 
     @objc private func playAudioTapped() {
@@ -520,8 +687,87 @@ private final class RosaryAudioPlayerViewController: UIViewController, AVAudioPl
 class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     private let tableView = UITableView()
+
+    private let mysteries: [Mystery] = [
+        Mystery(
+            rosaryTitle: "Radostný ruženec",
+            note: "modlí sa v pondelok a sobotu, v Adventnom období aj v iné dni",
+            subtitle: "Prosby k preddesiatku:",
+            preInvocations: [
+                MysteryInvocation(marker: "a)", text: "Ježiš, ktorý nech rozmnožuje našu vieru."),
+                MysteryInvocation(marker: "b)", text: "Ježiš, ktorý nech posilňuje našu nádej."),
+                MysteryInvocation(marker: "c)", text: "Ježiš, ktorý nech roznecuje našu lásku.")
+            ],
+            invocations: [
+                MysteryInvocation(marker: "1.", text: "Ježiš, ktorého si, Panna, z Ducha Svätého počala."),
+                MysteryInvocation(marker: "2.", text: "Ježiš, ktorého si, Panna, pri návšteve Alžbety v živote nosila."),
+                MysteryInvocation(marker: "3.", text: "Ježiš, ktorého si, Panna, v Betleheme porodila."),
+                MysteryInvocation(marker: "4.", text: "Ježiš, ktorého si, Panna, so svätým Jozefom v chráme obetovala."),
+                MysteryInvocation(marker: "5.", text: "Ježiš, ktorého si, Panna, so svätým Jozefom v chráme našla.")
+            ],
+            audioFileName: "joyful_mysteries.mp3",
+            exerciseType: "Radostný"
+        ),
+        Mystery(
+            rosaryTitle: "Bolestný ruženec",
+            note: "modlí sa v utorok a piatok, v Pôstnom období aj v iné dni",
+            subtitle: "Prosby k preddesiatku:",
+            preInvocations: [
+                MysteryInvocation(marker: "a)", text: "Ježiš, ktorý nech osvecuje náš rozum."),
+                MysteryInvocation(marker: "b)", text: "Ježiš, ktorý nech upevňuje našu vôľu."),
+                MysteryInvocation(marker: "c)", text: "Ježiš, ktorý nech posilňuje našu pamäť.")
+            ],
+            invocations: [
+                MysteryInvocation(marker: "1.", text: "Ježiš, ktorý sa pre nás krvou potil."),
+                MysteryInvocation(marker: "2.", text: "Ježiš, ktorý bol pre nás bičovaný."),
+                MysteryInvocation(marker: "3.", text: "Ježiš, ktorý bol pre nás tŕním korunovaný."),
+                MysteryInvocation(marker: "4.", text: "Ježiš, ktorý pre nás kríž niesol."),
+                MysteryInvocation(marker: "5.", text: "Ježiš, ktorý bol pre nás ukrižovaný.")
+            ],
+            audioFileName: "sorrowful_mysteries.mp3",
+            exerciseType: "Bolestný"
+        ),
+        Mystery(
+            rosaryTitle: "Slávnostný ruženec",
+            note: "modlí sa v stredu a nedeľu, vo Veľkonočnom období aj v iné dni",
+            subtitle: "Prosby k preddesiatku:",
+            preInvocations: [
+                MysteryInvocation(marker: "a)", text: "Ježiš, ktorý nech usporadúva naše myšlienky."),
+                MysteryInvocation(marker: "b)", text: "Ježiš, ktorý nech riadi naše slová."),
+                MysteryInvocation(marker: "c)", text: "Ježiš, ktorý nech spravuje naše skutky.")
+            ],
+            invocations: [
+                MysteryInvocation(marker: "1.", text: "Ježiš, ktorý slávne vstal z mŕtvych."),
+                MysteryInvocation(marker: "2.", text: "Ježiš, ktorý slávne vystúpil do neba."),
+                MysteryInvocation(marker: "3.", text: "Ježiš, ktorý nám zoslal Ducha Svätého."),
+                MysteryInvocation(marker: "4.", text: "Ježiš, ktorý ťa, Panna, vzal do neba."),
+                MysteryInvocation(marker: "5.", text: "Ježiš, ktorý ťa, Panna, v nebi korunoval.")
+            ],
+            audioFileName: "glorious_mysteries.mp3",
+            exerciseType: "Slávnostný"
+        ),
+        Mystery(
+            rosaryTitle: "Ruženec svetla",
+            note: "modlí sa vo štvrtok",
+            subtitle: "Prosby k preddesiatku:",
+            preInvocations: [
+                MysteryInvocation(marker: "a)", text: "Ježiš, ktorý nech je svetlom nášho života."),
+                MysteryInvocation(marker: "b)", text: "Ježiš, ktorý nech nás uzdravuje milosrdnou láskou."),
+                MysteryInvocation(marker: "c)", text: "Ježiš, ktorý nech nás vezme k sebe do večnej slávy.")
+            ],
+            invocations: [
+                MysteryInvocation(marker: "1.", text: "Ježiš, ktorý bol pokrstený v Jordáne a začal svoje verejné účinkovanie."),
+                MysteryInvocation(marker: "2.", text: "Ježiš, ktorý zázrakom v Káne Galilejskej otvoril srdcia učeníkov pre vieru."),
+                MysteryInvocation(marker: "3.", text: "Ježiš, ktorý ohlasoval Božie kráľovstvo a vyzýval ľud na pokánie."),
+                MysteryInvocation(marker: "4.", text: "Ježiš, ktorý sa ukázal v božskej sláve na vrchu premenenia."),
+                MysteryInvocation(marker: "5.", text: "Ježiš, ktorý nám dal seba samého za pokrm a nápoj v Oltárnej sviatosti.")
+            ],
+            audioFileName: "luminous_mysteries.mp3",
+            exerciseType: nil
+        )
+    ]
     
-    private var faqItems: [FAQItem] = [
+    private lazy var faqItems: [FAQItem] = [
         FAQItem(
             question: "Ako sa modliť ruženec",
             answer: """
@@ -532,7 +778,7 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     Apoštolské vyznanie viery (Verím v Boha)
                     Otče náš
                     3x Zdravas‘ Mária; po mene Ježiš nasleduje príslušné tajomstvo k preddesiatku
-                    Sláva Otcu a fatimská modlitba
+                    Sláva Otcu
 
                     Nasleduje päť desiatkov:
                     Na začiatku každého desiatku uvedieme názov tajomstva (môže sa tiež opakovať po mene Ježiš v Zdravase)
@@ -545,94 +791,10 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     Kráľovná posvätného ruženca, oroduj za nás! (3x) a modlitbu prosebnej alebo ďakovnej časti, podľa toho v ktorej časti novény sa nachádzame.
                     """
         ),
-        FAQItem(
-            question: "Radostný ruženec",
-            answer: """
-                    (modlí sa v pondelok a sobotu, v Adventnom období aj v iné dni)
-
-                    Prosby k preddesiatku: 
-                    a) Ježiš, ktorý nech rozmnožuje našu vieru.
-                    b) Ježiš, ktorý nech posilňuje našu nádej.
-                    c) Ježiš, ktorý nech roznecuje našu lásku.
-
-                    1. Ježiš, ktorého si, Panna, z Ducha Svätého počala.
-                    2. Ježiš, ktorého si, Panna, pri návšteve Alžbety v živote nosila.
-                    3. Ježiš, ktorého si, Panna, v Betleheme porodila.
-                    4. Ježiš, ktorého si, Panna, so svätým Jozefom v chráme obetovala.
-                    5. Ježiš, ktorého si, Panna, so svätým Jozefom v chráme našla.
-                    """,
-            audioFileName: "joyful_mysteries.mp3",
-            exerciseType: "Radostný"
-        ),
-        FAQItem(
-            question: "Bolestný ruženec",
-            answer: """
-                    (modlí sa v utorok a piatok, v Pôstnom období aj v iné dni)
-
-                    Prosby k preddesiatku: 
-                    a) Ježiš, ktorý nech osvecuje náš rozum.
-                    b) Ježiš, ktorý nech upevňuje našu vôľu.
-                    c) Ježiš, ktorý nech posilňuje našu pamäť.
-
-                    1. Ježiš, ktorý sa pre nás krvou potil.
-                    2. Ježiš, ktorý bol pre nás bičovaný.
-                    3. Ježiš, ktorý bol pre nás tŕním korunovaný.
-                    4. Ježiš, ktorý pre nás kríž niesol.
-                    5. Ježiš, ktorý bol pre nás ukrižovaný.
-                    """,
-            audioFileName: "sorrowful_mysteries.mp3",
-            exerciseType: "Bolestný"
-        ),
-        FAQItem(
-            question: "Slávnostný ruženec",
-            answer: """
-                    (modlí sa v stredu a nedeľu, vo Veľkonočnom období aj v iné dni)
-
-                    Prosby k preddesiatku: 
-                    a) Ježiš, ktorý nech usporadúva naše myšlienky.
-                    b) Ježiš, ktorý nech riadi naše slová.
-                    c) Ježiš, ktorý nech spravuje naše skutky.
-
-                    1. Ježiš, ktorý slávne vstal z mŕtvych.
-                    2. Ježiš, ktorý slávne vystúpil do neba.
-                    3. Ježiš, ktorý nám zoslal Ducha Svätého.
-                    4. Ježiš, ktorý ťa, Panna, vzal do neba.
-                    5. Ježiš, ktorý ťa, Panna, v nebi korunoval.
-                    """,
-            audioFileName: "glorious_mysteries.mp3",
-            exerciseType: "Slávnostný"
-        ),
-        FAQItem(
-            question: "Ruženec svetla",
-            answer: """
-                    (modlí sa vo štvrtok)
-
-                    Prosby k preddesiatku:
-                    a) Ježiš, ktorý nech je svetlom nášho života.
-                    b) Ježiš, ktorý nech nás uzdravuje  milosrdnou láskou.
-                    c) Ježiš, ktorý nech nás vezme k sebe do večnej slávy.
-
-                    1. Ježiš, ktorý bol pokrstený v Jordáne a začal svoje verejné účinkovanie.
-                    2. Ježiš, ktorý zázrakom v Káne Galilejskej otvoril srdcia učeníkov pre vieru.
-                    3. Ježiš, ktorý ohlasoval Božie kráľovstvo a vyzýval ľud na pokánie.
-                    4. Ježiš, ktorý sa ukázal v božskej sláve na vrchu premenenia.
-                    5. Ježiš, ktorý nám dal seba samého za pokrm a nápoj v Oltárnej sviatosti.
-                    """,
-            audioFileName: "luminous_mysteries.mp3",
-            exerciseType: nil
-        ),
-        FAQItem(
-            question: "Ruženec svetla (skrátená verzia)",
-            answer: """
-                    Skrátená verzia tajomstiev ruženca svetla (schválená Konferenciou Biskupov Slovenska r. 2003):
-                    
-                    1. Ježiš, ktorý bol pokrstený v Jordáne.
-                    2. Ježiš, ktorý zjavil seba samého na svadbe v Káne.
-                    3. Ježiš, ktorý ohlasoval Božie kráľovstvo a pokánie.
-                    4. Ježiš, ktorý sa premenil na vrchu Tábor.
-                    5. Ježiš, ktorý ustanovil Oltárnu sviatosť.
-                    """
-        ),
+        FAQItem(mystery: mysteries[0]),
+        FAQItem(mystery: mysteries[1]),
+        FAQItem(mystery: mysteries[2]),
+        FAQItem(mystery: mysteries[3]),
         FAQItem(
             question: "Modlitba prosebnej časti:",
             answer: """

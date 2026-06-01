@@ -234,9 +234,9 @@ class ColorProvider {
         return UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 117/255, green: 196/255, blue: 139/255, alpha: 1.0)
+                return UIColor(red: 1/255, green: 189/255, blue: 53/255, alpha: 1.0)
             default:
-                return UIColor(red: 50/255, green: 125/255, blue: 82/255, alpha: 1.0)
+                return UIColor(red: 1/255, green: 189/255, blue: 53/255, alpha: 1.0)
             }
         }
     }
