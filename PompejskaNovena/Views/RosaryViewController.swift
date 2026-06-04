@@ -27,14 +27,18 @@ struct FAQItem {
     let question: String
     let answer: String?
     let mystery: Mystery?
+    private let standaloneAudioFileName: String?
+    private let standaloneExerciseType: String?
     var isExpanded: Bool = false
-    var audioFileName: String? { mystery?.audioFileName }
-    var exerciseType: String? { mystery?.exerciseType }
+    var audioFileName: String? { mystery?.audioFileName ?? standaloneAudioFileName }
+    var exerciseType: String? { mystery?.exerciseType ?? standaloneExerciseType }
 
-    init(question: String, answer: String, isExpanded: Bool = false) {
+    init(question: String, answer: String, audioFileName: String? = nil, exerciseType: String? = nil, isExpanded: Bool = false) {
         self.question = question
         self.answer = answer
         self.mystery = nil
+        self.standaloneAudioFileName = audioFileName
+        self.standaloneExerciseType = exerciseType
         self.isExpanded = isExpanded
     }
 
@@ -42,6 +46,8 @@ struct FAQItem {
         self.question = mystery.rosaryTitle
         self.answer = nil
         self.mystery = mystery
+        self.standaloneAudioFileName = nil
+        self.standaloneExerciseType = nil
         self.isExpanded = isExpanded
     }
 }
@@ -796,16 +802,18 @@ class RosaryViewController: UIViewController, UITableViewDelegate, UITableViewDa
         FAQItem(mystery: mysteries[2]),
         FAQItem(mystery: mysteries[3]),
         FAQItem(
-            question: "Modlitba prosebnej časti:",
+            question: "Modlitba prosebnej časti",
             answer: """
                     Spomeň si, milosrdná Panna Mária, Kráľovná posvätného ruženca z Pompejí, že nikdy nebolo počuť, žeby bol niekto z tých, čo si ťa ctia a ružencom prosia o pomoc, opustený. Matka večného Slova, nezavrhni moje slová, ale ma milostivo vypočuj a vyslyš moju ružencovú modlitbu pre zaľúbenie, aké nachádzaš vo svojom chráme v Pompejach. Amen.
-                    """
+                    """,
+            audioFileName: "petition_prayer.mp3"
         ),
         FAQItem(
-            question: "Modlitba ďakovnej časti:",
+            question: "Modlitba ďakovnej časti",
             answer: """
                     Čo ti môžem dať, Kráľovná plná lásky? Zverujem ti celý svoj život. Panna posvätného ruženca z Pompejí, budem šíriť tvoju chválu, koľko mi len sily budú stačiť, lebo som vzýval tvoju pomoc a prišla mi Božia pomoc. Všade budem svedčiť o tvojom milosrdenstve. Budem šíriť ružencovú pobožnosť, koľko len budem vládať, a všetkým budem hovoriť o tvojej dobrote voči mne, aby k tebe prišli aj nehodní hriešnici ako ja. Keby celý svet vedel, aká si dobrá a ako sa zmilúvaš nad tými, čo trpia, všetky stvorenia by sa utiekali k tebe. Amen.
-                    """
+                    """,
+            audioFileName: "thanksgiving_prayer.mp3"
         ),
         FAQItem(
             question: "Čo ak som sa nestihol pomodliť niektorý z ružencov v daný deň?",
