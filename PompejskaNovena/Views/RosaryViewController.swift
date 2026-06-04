@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import MediaPlayer
 import UIKit
 
 struct MysteryInvocation {
@@ -418,6 +419,7 @@ private final class RosaryAudioPlayerViewController: UIViewController, AVAudioPl
         view.backgroundColor = ColorProvider.shared.surfaceColour
         configureSheet()
         setupPlayer()
+        configureRemoteCommandCenter()
         setupUI()
         updatePlaybackUI()
     }
@@ -433,6 +435,8 @@ private final class RosaryAudioPlayerViewController: UIViewController, AVAudioPl
         super.viewDidDisappear(animated)
         timer?.invalidate()
         audioPlayer?.stop()
+        clearNowPlayingInfo()
+        removeRemoteCommandTargets()
     }
 
     private func configureSheet() {
@@ -457,6 +461,7 @@ private final class RosaryAudioPlayerViewController: UIViewController, AVAudioPl
 
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.enableRate = true
             audioPlayer?.delegate = self
@@ -586,7 +591,7 @@ private final class RosaryAudioPlayerViewController: UIViewController, AVAudioPl
     }
 
     private func makeSpeedMenu() -> UIMenu {
-        let speeds: [Float] = [1, 1.5, 2]
+        let speeds: [Float] = [1, 1.25, 1.5]
         return UIMenu(children: speeds.map { speed in
             UIAction(
                 title: formatPlaybackSpeed(speed),
@@ -602,6 +607,7 @@ private final class RosaryAudioPlayerViewController: UIViewController, AVAudioPl
         audioPlayer?.rate = speed
         speedButton.setTitle(formatPlaybackSpeed(speed), for: .normal)
         speedButton.menu = makeSpeedMenu()
+        updateNowPlayingInfo()
     }
 
     @objc private func playPauseTapped() {
@@ -659,6 +665,7 @@ private final class RosaryAudioPlayerViewController: UIViewController, AVAudioPl
         let imageName = audioPlayer?.isPlaying == true ? "pause.fill" : "play.fill"
         playPauseButton.setImage(UIImage(systemName: imageName), for: .normal)
         playPauseButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 44, weight: .regular), forImageIn: .normal)
+        updateNowPlayingInfo()
     }
 
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
@@ -668,6 +675,87 @@ private final class RosaryAudioPlayerViewController: UIViewController, AVAudioPl
         if let exerciseType = audio.exerciseType, onCompleted(exerciseType) {
             showCompletionMessage()
         }
+    }
+
+    private func configureRemoteCommandCenter() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+        removeRemoteCommandTargets()
+
+        commandCenter.playCommand.isEnabled = true
+        commandCenter.playCommand.addTarget { [weak self] _ in
+            guard let self else { return .commandFailed }
+            self.play()
+            return .success
+        }
+
+        commandCenter.pauseCommand.isEnabled = true
+        commandCenter.pauseCommand.addTarget { [weak self] _ in
+            guard let self, let audioPlayer = self.audioPlayer else { return .commandFailed }
+            audioPlayer.pause()
+            self.timer?.invalidate()
+            self.updatePlaybackUI()
+            return .success
+        }
+
+        commandCenter.togglePlayPauseCommand.isEnabled = true
+        commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+            guard let self else { return .commandFailed }
+            self.playPauseTapped()
+            return .success
+        }
+
+        commandCenter.skipBackwardCommand.isEnabled = true
+        commandCenter.skipBackwardCommand.preferredIntervals = [10]
+        commandCenter.skipBackwardCommand.addTarget { [weak self] _ in
+            guard let self else { return .commandFailed }
+            self.seek(to: (self.audioPlayer?.currentTime ?? 0) - 10)
+            return .success
+        }
+
+        commandCenter.skipForwardCommand.isEnabled = true
+        commandCenter.skipForwardCommand.preferredIntervals = [10]
+        commandCenter.skipForwardCommand.addTarget { [weak self] _ in
+            guard let self else { return .commandFailed }
+            self.seek(to: (self.audioPlayer?.currentTime ?? 0) + 10)
+            return .success
+        }
+
+        commandCenter.changePlaybackPositionCommand.isEnabled = true
+        commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
+            guard let self,
+                  let positionEvent = event as? MPChangePlaybackPositionCommandEvent else {
+                return .commandFailed
+            }
+            self.seek(to: positionEvent.positionTime)
+            return .success
+        }
+    }
+
+    private func removeRemoteCommandTargets() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+        commandCenter.playCommand.removeTarget(nil)
+        commandCenter.pauseCommand.removeTarget(nil)
+        commandCenter.togglePlayPauseCommand.removeTarget(nil)
+        commandCenter.skipBackwardCommand.removeTarget(nil)
+        commandCenter.skipForwardCommand.removeTarget(nil)
+        commandCenter.changePlaybackPositionCommand.removeTarget(nil)
+    }
+
+    private func updateNowPlayingInfo() {
+        guard let audioPlayer else { return }
+
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+            MPMediaItemPropertyTitle: audio.title,
+            MPMediaItemPropertyArtist: "Pompejská novéna",
+            MPMediaItemPropertyPlaybackDuration: audioPlayer.duration,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: audioPlayer.currentTime,
+            MPNowPlayingInfoPropertyPlaybackRate: audioPlayer.isPlaying ? playbackSpeed : 0,
+            MPNowPlayingInfoPropertyDefaultPlaybackRate: 1
+        ]
+    }
+
+    private func clearNowPlayingInfo() {
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     }
 
     private func showCompletionMessage() {
