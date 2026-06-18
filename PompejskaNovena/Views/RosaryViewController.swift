@@ -256,10 +256,12 @@ class FAQCardCell: UITableViewCell {
             answerLabel.numberOfLines = 0
             answerLabel.textColor = FAQStyle.textColor
             answerStack.addArrangedSubview(answerLabel)
+            appendPlayAudioButtonIfNeeded(for: item)
             return
         }
 
         configureMysteryContent(mystery)
+        appendPlayAudioButtonIfNeeded(for: item)
     }
 
     private func configureMysteryContent(_ mystery: Mystery) {
@@ -348,6 +350,37 @@ class FAQCardCell: UITableViewCell {
             divider.heightAnchor.constraint(equalToConstant: 1 / UIScreen.main.scale)
         ])
         return divider
+    }
+
+    private func appendPlayAudioButtonIfNeeded(for item: FAQItem) {
+        guard item.audioFileName != nil else { return }
+        answerStack.addArrangedSubview(paddedContainer(for: makePlayAudioButton(), top: AppDesign.Spacing.md, bottom: 0))
+    }
+
+    private func makePlayAudioButton() -> UIButton {
+        let button = UIButton(type: .system)
+        var configuration = UIButton.Configuration.filled()
+        var titleAttributes = AttributeContainer()
+        titleAttributes.font = AppDesign.Font.headline()
+        configuration.attributedTitle = AttributedString("Prehrať audio", attributes: titleAttributes)
+        configuration.image = UIImage(systemName: "speaker.wave.2.fill")
+        configuration.imagePlacement = .leading
+        configuration.imagePadding = 8
+        configuration.baseBackgroundColor = ColorProvider.shared.primaryContainerColour
+        configuration.baseForegroundColor = ColorProvider.shared.onPrimaryContainerColour
+        configuration.background.cornerRadius = AppDesign.Radius.medium
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 18, bottom: 14, trailing: 18)
+
+        button.configuration = configuration
+        button.accessibilityLabel = "Prehrať audio"
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(playAudioTapped), for: .touchUpInside)
+
+        NSLayoutConstraint.activate([
+            button.heightAnchor.constraint(greaterThanOrEqualToConstant: 52)
+        ])
+
+        return button
     }
 
     private func paddedContainer(for view: UIView, top: CGFloat, bottom: CGFloat) -> UIView {
